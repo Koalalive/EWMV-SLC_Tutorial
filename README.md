@@ -2,7 +2,7 @@
 
 **An academic step-by-step tutorial for fitting the EWMV-SLC model to Balloon Analogue Risk Task (BART) data with `cmdstanr`.**
 
-EWMV-SLC is a hierarchical Bayesian cognitive model of risky decision-making introduced by **Wei et al. (2026)** in the *Journal of Behavioral Addictions* ("Diminishing loss sensitivity during risky decision-making among male individuals with gambling disorder"). It extends the **Exponential-Weight Mean–Variance (EWMV)** model with a *diminishing loss sensitivity* parameter (ζ, `zeta`), which captures how loss aversion grows *slower* as loss magnitude increases — a key mechanism differentiating individuals with gambling disorder (GD) from healthy controls.
+EWMV-SLC is a hierarchical Bayesian cognitive model of risky decision-making introduced by **Wei et al. (2026)** in the *Journal of Behavioral Addictions* ("Diminishing loss sensitivity during risky decision-making among male individuals with gambling disorder"). It extends the **Exponential-Weight Mean–Variance (EWMV)** model with a *diminishing loss sensitivity* parameter (ζ, `zeta`), which captures how loss aversion grows *slower* as loss magnitude increases. This is a key mechanism differentiating individuals with gambling disorder (GD) from healthy controls.
 
 This repository contains:
 
@@ -38,17 +38,17 @@ of the basics (opening a terminal, `cd`, `dir`/`ls`, pasting commands) is in
 
 **Why use Docker for this tutorial?**
 
-- **Deployment made simple:** the whole environment (R 4.1.3, CmdStan,
+- **Deployment:** the whole environment (R 4.1.3, CmdStan,
   `cmdstanr`, `posterior`, `bayesplot`, `loo`, `tidyverse`) already lives inside
-  one image. One `docker run` command is all you need — no installing
+  one image. One `docker run` command is all you need, with nothing to install
   compilers, no package version conflicts, no "it works on my machine".
-- **Reproducibility by design:** the image pins exact software versions, so the
+- **Reproducibility:** the image pins exact software versions, so the
   pipeline behaves identically on any computer, today and years from now. For
   academic work this is essential: co-authors, reviewers, or a future you can
   re-run the analysis and obtain the same results.
-- **Easy to share:** the environment travels with the image on Docker Hub
+- **Sharing:** the environment travels with the image on Docker Hub
   (`koalalive/stan4cogneuro:1.0.2`), not with your computer. Anyone with Docker
-  — on Windows, macOS, or Linux — can run the same analysis without touching
+  on Windows, macOS, or Linux can run the same analysis without touching
   their local setup.
 
 **Terms you will see below:**
@@ -60,7 +60,7 @@ of the basics (opening a terminal, `cd`, `dir`/`ls`, pasting commands) is in
 | volume (`-v`) | Attaches a folder from your computer into the container, e.g. `-v "$(pwd)":/root/stan` |
 | port (`-p`) | Maps a container port to your computer, e.g. `-p 8787:8787` |
 
-**Step 0 — Install Docker (once):**
+**Step 0: Install Docker (once)**
 
 - **Windows** (Docker Desktop, uses the WSL2 backend):
   <https://docs.docker.com/desktop/setup/install/windows-install/>
@@ -73,7 +73,7 @@ Verify the installation in a terminal:
 docker --version
 ```
 
-**Step 1 — Common commands:**
+**Step 1: Common commands**
 
 | Command | What it does |
 |---------|--------------|
@@ -92,14 +92,14 @@ docker --version
   installed or not started. Install it (links above), restart your terminal,
   and make sure Docker Desktop is actually running.
 - **`cannot connect to the Docker daemon` / `error during connect`**: Docker
-  Desktop is installed but not running — start it from the Start menu / Launchpad.
+  Desktop is installed but not running; start it from the Start menu / Launchpad.
 - **`port is already allocated`**: something else is using port 8787. Find it
   with `docker ps` and stop it, or map a different host port instead:
   `-p 8788:8787` and open `http://localhost:8788`.
-- **`the container name is already in use`**: remove the old one first —
+- **`the container name is already in use`**: remove the old one first:
   `docker rm -f ewmv-rstudio`.
 - **`invalid reference format`** (PowerShell): do not use `$(pwd)` in
-  PowerShell — it expands to something Docker cannot parse. Use `"${PWD}:/root/stan"`
+  PowerShell. It expands to something Docker cannot parse. Use `"${PWD}:/root/stan"`
   instead (or `%CD%` in CMD).
 - **`exec: "-v": executable file not found`**: the `-v ...` option was typed
   *after* the image name. All options (`-v`, `-p`, `-e`) must come **before**
@@ -110,7 +110,7 @@ docker --version
 - **`The system cannot find the path specified` / `No such file or directory`**:
   you are in the wrong folder, or the mounted path is wrong. `cd` to the
   repository root and re-check with `dir`/`ls`.
-- **Browser shows nothing**: check `docker ps` — the container must be listed
+- **Browser shows nothing**: check `docker ps`; the container must be listed
   with status `Up`.
 
 ---
@@ -141,17 +141,17 @@ docker run --rm -v "$(pwd)":/root/stan -w /root/stan \
 ## For AI agents
 
 - Always run from the repository **root** (the paths `_scripts/...`, `_data/...` are relative to it).
-- **R is not on `$PATH`** inside the image — use the full interpreter path: `/root/miniconda3/envs/stan/bin/Rscript` (or `/root/miniconda3/envs/stan/bin/R`).
-- The script `_scripts/cmdstanr.R` already forces the image's conda toolchain (GCC 14 + conda libstdc++) so model compilation succeeds without extra environment setup — do not override `LDFLAGS`/`LD_LIBRARY_PATH` yourself.
+- **R is not on `$PATH`** inside the image; use the full interpreter path: `/root/miniconda3/envs/stan/bin/Rscript` (or `/root/miniconda3/envs/stan/bin/R`).
+- The script `_scripts/cmdstanr.R` already forces the image's conda toolchain (GCC 14 + conda libstdc++) so model compilation succeeds without extra environment setup. Do not override `LDFLAGS`/`LD_LIBRARY_PATH` yourself.
 - Optional speed-up: cache compiled models across runs with a named volume: add `-v cmdstan_cache:/root/.cmdstanr` (compilation happens only the first time per volume).
-- Known limitation: `rstan::read_stan_csv()` cannot fully parse the CmdStan 2.37 CSV header (rstan 2.32.x expects `save_warmup = 0`, CmdStan 2.37 writes `save_warmup = false`). The script detects this and continues with `cmdstanr`/`posterior` results — no action needed.
+- Known limitation: `rstan::read_stan_csv()` cannot fully parse the CmdStan 2.37 CSV header (rstan 2.32.x expects `save_warmup = 0`, CmdStan 2.37 writes `save_warmup = false`). The script detects this and continues with `cmdstanr`/`posterior` results; no action needed.
 :::
 
 ---
 
 ## Human-friendly: RStudio Server (browser IDE, port 8787)
 
-Want to run the code interactively in an IDE? Mount the folder you need into **`/root/stan`** inside the container — RStudio Server starts automatically — and open **`http://localhost:8787`** in your browser.
+Want to run the code interactively in an IDE? Mount the folder you need into **`/root/stan`** inside the container; RStudio Server starts automatically. Then open **`http://localhost:8787`** in your browser.
 
 **Bash (macOS / Linux):**
 
@@ -183,9 +183,9 @@ docker run -it --name ewmv-rstudio -p 8787:8787 `
 docker run -it --name ewmv-rstudio -p 8787:8787 -v "%CD%":/root/stan koalalive/stan4cogneuro:1.0.2
 ```
 
-- **Open** `http://localhost:8787` in your browser and log in with the RStudio account of the image (default: user `rstudio-server`, password `rstudio` — customize if your image uses different credentials).
+- **Open** `http://localhost:8787` in your browser and log in with the RStudio account of the image (default: user `rstudio-server`, password `rstudio`; customize if your image uses different credentials).
 - **Mount your own data**: add another volume, e.g. `-v "D:/my_data":/root/stan/data`, and your CSV files will appear inside the project folder.
-- The mount point inside the container is **`/root/stan`** — open that folder yourself from RStudio's Files pane (or open the `Toys4EWMV-SLC.Rproj` project if present); the mounted folder is your working directory.
+- The mount point inside the container is **`/root/stan`**; open that folder yourself from RStudio's Files pane (or open the `Toys4EWMV-SLC.Rproj` project if present); the mounted folder is your working directory.
 
 ---
 
@@ -224,11 +224,11 @@ The image [`koalalive/stan4cogneuro:1.0.2`](https://hub.docker.com/r/koalalive/s
 
 The single entry point is `_scripts/cmdstanr.R`. It does:
 
-1. **Preprocess** — `bart_fit_preprocess()` reshapes the long-format data into the `N × T` matrices expected by Stan (`data_list`).
-2. **Compile** — `cmdstan_model(cpp_options = list(stan_threads = TRUE))` (with threading enabled, required by `reduce_sum`).
-3. **Sample** — `model$sample()` with `parallel_chains = 4` (chains in parallel) and `threads_per_chain = 3` (threads within each chain).
-4. **Diagnose** — `$summary()`, `$diagnostic_summary()`, and `bayesplot` trace plots of the group-level means (`mu_phi` … `mu_zeta`).
-5. **Compare** — LOO-CV (`loo`) on the pointwise `log_lik` for model comparison.
+1. **Preprocess**: `bart_fit_preprocess()` reshapes the long-format data into the `N × T` matrices expected by Stan (`data_list`).
+2. **Compile**: `cmdstan_model(cpp_options = list(stan_threads = TRUE))` (with threading enabled, required by `reduce_sum`).
+3. **Sample**: `model$sample()` with `parallel_chains = 4` (chains in parallel) and `threads_per_chain = 3` (threads within each chain).
+4. **Diagnose**: `$summary()`, `$diagnostic_summary()`, and `bayesplot` trace plots of the group-level means (`mu_phi` … `mu_zeta`).
+5. **Compare**: LOO-CV (`loo`) on the pointwise `log_lik` for model comparison.
 
 ### Why cmdstanr (vs. rstan)?
 
@@ -300,6 +300,14 @@ If you use this repository, please cite the source paper and the adapted works:
   year    = {2017},
   doi     = {10.1162/cpsy_a_00002}
 }
+
+@misc{cmdstanr,
+  author  = {Gabry, Jonah and Che\v{s}novar, Rok and Johnson, Alec and Bronder, Steve},
+  title   = {cmdstanr: R Interface to {C}md{S}tan},
+  year    = {2023},
+  url     = {https://mc-stan.org/cmdstanr/},
+  note    = {R package, The Stan Development Team}
+}
 ```
 
 Also cite the `cmdstanr` package when using this pipeline:
@@ -314,4 +322,4 @@ We sincerely thank **Gangliang Zhong**, **Yujie Bai**, **Lingjie Wei**, and **Ai
 
 ## License
 
-MIT — see [LICENSE](LICENSE) (© 2025 WEI Hanyu).
+MIT. See [LICENSE](LICENSE) (© 2025 WEI Hanyu).

@@ -1,4 +1,4 @@
-# AGENTS.md — Guide for AI Agents
+# AGENTS.md: Guide for AI Agents
 
 This file tells AI coding agents how to work with this repository. Follow it and the README; the quick-start commands below are **verified working**.
 
@@ -11,7 +11,7 @@ This file tells AI coding agents how to work with this repository. Follow it and
 
 ## Quick start (verified)
 
-R is **NOT on `$PATH`** in the image — always use the full interpreter path:
+R is **NOT on `$PATH`** in the image; always use the full interpreter path:
 
 ```bash
 # (PowerShell: ${PWD}, CMD: %CD%, Bash/Zsh: $(pwd))
@@ -50,7 +50,7 @@ Then open `http://localhost:8787` (default user: `rstudio-server` / `rstudio`).
 
 1. **R path**: use `/root/miniconda3/envs/stan/bin/Rscript` (and `/root/miniconda3/envs/stan/bin/R`).
 2. **Toolchain**: the image mixes conda GCC 14 with system GCC 11. Linking the wrong libstdc++ fails with `undefined reference to __cxa_call_terminate`. `_scripts/cmdstanr.R` already forces the conda toolchain (it sets `PATH`/`LD_LIBRARY_PATH`/`LIBRARY_PATH`/`LDFLAGS` if `/root/miniconda3/envs/stan` exists). **Do NOT override** these variables yourself.
-3. **rstan compatibility**: `rstan::read_stan_csv()` cannot parse CmdStan 2.37 CSV headers (`save_warmup = false` vs numeric). The script wraps it in `tryCatch` and continues — treat this as expected behavior, not a bug.
+3. **rstan compatibility**: `rstan::read_stan_csv()` cannot parse CmdStan 2.37 CSV headers (`save_warmup = false` vs numeric). The script wraps it in `tryCatch` and continues. Treat this as expected behavior, not a bug.
 4. **RStudio login**: username `rstudio-server`; password `rstudio` by default. The image starts RStudio Server on startup (no extra bootstrap script needed).
 
 ## File map

@@ -1,0 +1,20 @@
+# Normalize line endings to LF on checkout for all text files
+* text=auto eol=lf
+
+# Explicit text file types (LF on all platforms)
+*.R     text eol=lf
+*.stan  text eol=lf
+*.md    text eol=lf
+*.qmd   text eol=lf
+*.sh    text eol=lf
+*.bib   text eol=lf
+*.Rproj text eol=lf
+*.csv   text eol=lf
+.gitignore text eol=lf
+LICENSE text eol=lf
+
+# Binary files (never normalize)
+*.png   binary
+*.rds   binary
+*.exe   binary
+*.dll   binary

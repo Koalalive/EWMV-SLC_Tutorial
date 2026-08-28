@@ -1,5 +1,21 @@
 ---
-title: "Fitting the EWMV-SLC Model to BART Data with cmdstanr" subtitle: "An annotated end-to-end tutorial: data preparation, multithreaded MCMC sampling, convergence diagnostics, and model comparison" author: "Toys4EWMV-SLC Project" date: today format: html: toc: true toc-depth: 3 theme: cosmo code-fold: false df-print: paged code-line-numbers: true execute: echo: true warning: false message: false bibliography: references.bib
+title: "Fitting the EWMV-SLC Model to BART Data with cmdstanr"
+subtitle: "An annotated end-to-end tutorial: data preparation, multithreaded MCMC sampling, convergence diagnostics, and model comparison"
+author: "Toys4EWMV-SLC Project"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    code-fold: false
+    df-print: paged
+    code-line-numbers: true
+execute:
+  echo: true
+  warning: false
+  message: false
+bibliography: references.bib
 ---
 
 # Introduction
@@ -35,12 +51,12 @@ All commands in this tutorial run from the **repository root** (the folder with
 
 ## Command line basics (for beginners)
 
-All commands here are typed in a **terminal** — a text-only window where you
+All commands here are typed in a **terminal**: a text-only window where you
 type a command and press **Enter** to run it. Not sure how to open one?
 
 ### Windows
 
-1. Press **`Win + R`**, type `cmd`, press Enter — or open **Windows
+1. Press **`Win + R`**, type `cmd`, press Enter, or open **Windows
    PowerShell** from the Start menu (search "powershell").
 2. You will see a prompt like `C:\Users\yourname>`. Type commands after it and
    press Enter. **Paste** commands with right-click or `Ctrl + V`.
@@ -56,7 +72,7 @@ type a command and press **Enter** to run it. Not sure how to open one?
 ### Which Windows shell should I use?
 
 Windows offers several terminal programs. They *look* the same but have
-different syntax — the most important difference here is **how they write the
+different syntax. The key difference here is **how they write the
 current folder path** in the Docker commands:
 
 | Shell | How to open | Path syntax | Notes |
@@ -66,8 +82,7 @@ current folder path** in the Docker commands:
 | Git Bash | Start menu → search "Git Bash" (installed with Git) | `$(pwd)` | Simulates a Linux environment (`ls`, `cd`); behaves like macOS/Linux |
 | Windows Terminal (optional) | Microsoft Store app | any of the above | A modern tabbed window that can run CMD/PowerShell/Git Bash/WSL |
 
-**Rule of thumb:** if you followed the Git option above, use **Git Bash** —
-then every command in this tutorial works verbatim (same as macOS/Linux).
+**Rule of thumb:** if you followed the Git option above, use **Git Bash**; then every command in this tutorial works verbatim (same as macOS/Linux).
 If you use CMD or PowerShell, swap `$(pwd)` for `%CD%` or `${PWD}` accordingly.
 
 ### macOS / Linux
@@ -108,12 +123,12 @@ If a command fails, the most likely cause is being in the wrong folder.
 | `the container name is already in use` | A container with the same name exists | `docker rm -f ewmv-rstudio` and run again |
 | `unable to find image ... locally` / pull timeout | Network problem downloading the image | Retry; configure a registry mirror or proxy for Docker |
 | `The system cannot find the path specified` / `No such file or directory` | Wrong current folder or wrong mount path | `cd` to the repository root; re-check with `dir`/`ls` |
-| Browser shows a blank page | Container not running | `docker ps` — the container status must be `Up` |
+| Browser shows a blank page | Container not running | `docker ps`; the container status must be `Up` |
 
 If you still have a problem, copy the full error text into a search engine or
-an AI assistant — and mention you are using `koalalive/stan4cogneuro:1.0.2`.
+an AI assistant, and mention you are using `koalalive/stan4cogneuro:1.0.2`.
 
-## Option A — git clone (recommended)
+## Option A: git clone (recommended)
 
 Install Git if you do not have it yet:
 
@@ -133,11 +148,11 @@ ls
 # _data  _scripts  cmdstanr.qmd  README.md  AGENTS.md  ...
 ```
 
-## Option B — download as ZIP (no Git needed)
+## Option B: download as ZIP (no Git needed)
 
 Open <https://github.com/Koalalive/EWMV-SLC_Tutorial> in your browser, click
 **Code → Download ZIP**, unzip the archive, and open a terminal inside the
-unzipped folder. **Run every command below from that folder** — it is the
+unzipped folder. **Run every command below from that folder**; it is the
 repository root used throughout this tutorial.
 
 ## What you should see
@@ -150,7 +165,7 @@ repository root used throughout this tutorial.
 | `cmdstanr.qmd` | This tutorial (annotated source) |
 | `README.md` | Human-facing documentation |
 
-Next: [Prerequisites](#prerequisites) — get Docker ready (see the Docker
+Next: [Prerequisites](#prerequisites) to get Docker ready (see the Docker
 primer in the README if you are new to Docker).
 
 ---
@@ -161,7 +176,7 @@ primer in the README if you are new to Docker).
 
 The image `koalalive/stan4cogneuro:1.0.2` bundles R, CmdStan, `cmdstanr`,
 `posterior`, `bayesplot`, `loo`, `tidyverse`, and `rstan`. With Docker you do
-not need to install anything locally — the same pinned environment runs on any
+not need to install anything locally. The same pinned environment runs on any
 computer, which makes the analysis easy to deploy and the results easy to
 reproduce:
 
@@ -253,7 +268,7 @@ cmdstanr::install_cmdstan()
 
 ---
 
-# Step 0: Setup — libraries and helper functions
+# Step 0: Setup, libraries, and helper functions
 
 Load every package used in this workflow and source the project's helper functions (`bart_fit_preprocess` reshapes the data; `bart_ewmvslc_diagnosis` collects R-hat values and trace plots).
 
@@ -341,9 +356,9 @@ Nmax   <- 12  # maximum number of pumps allowed in a trial
 
 The sample data are in a tidy long format with one row per trial:
 
-- `subjID` — participant identifier,
-- `pumps` — number of pumps on that trial,
-- `explosion` — 1 if the balloon exploded (the last pump on this trial was an explosion), 0 otherwise.
+- `subjID`: participant identifier,
+- `pumps`: number of pumps on that trial,
+- `explosion`: 1 if the balloon exploded (the last pump on this trial was an explosion), 0 otherwise.
 
 ```{r}
 #| label: load-data
@@ -368,12 +383,12 @@ bart_sample |>
 
 The Stan model expects **matrices** of shape `N x T`, not a long data frame. `bart_fit_preprocess()` converts the long format into the `data_list` that `model$sample()` consumes:
 
-- `N` — number of subjects,
-- `T` — maximum number of trials per subject (padded with 0s if trials differ),
-- `Tsubj` — actual number of trials per subject,
-- `P` — maximum number of pumps + 1 (`Nmax + 1`),
-- `pumps` — `N x T` integer matrix,
-- `explosion` — `N x T` integer matrix (0/1).
+- `N`: number of subjects,
+- `T`: maximum number of trials per subject (padded with 0s if trials differ),
+- `Tsubj`: actual number of trials per subject,
+- `P`: maximum number of pumps + 1 (`Nmax + 1`),
+- `pumps`: `N x T` integer matrix,
+- `explosion`: `N x T` integer matrix (0/1).
 
 ```{r}
 #| label: preprocess
@@ -421,12 +436,12 @@ The **first** execution of `cmdstan_model()` triggers a C++ compilation that typ
 
 ---
 
-# Step 6: Run the MCMC sampler
+# Step 6: Run the MCMC sampler {#sec-sample}
 
 `CmdStanMCMC$sample()` runs the compiled executable. Two levels of parallelism are used:
 
-- `parallel_chains = 4` — run the 4 chains *simultaneously* using 4 processes;
-- `threads_per_chain = 3` — each chain further divides the per-subject likelihood across 3 threads (via `reduce_sum`), i.e. 12 cores in total.
+- `parallel_chains = 4`: run the 4 chains *simultaneously* using 4 processes;
+- `threads_per_chain = 3`: each chain further divides the per-subject likelihood across 3 threads (via `reduce_sum`), i.e. 12 cores in total.
 
 ```{r}
 #| label: sample
@@ -472,10 +487,10 @@ By default `cmdstanr` writes the per-chain sampler output (CSV files) to a tempo
 
 A `CmdStanMCMC` object is rich in methods. The most commonly used ones:
 
-- `$draws()` — extract the posterior draws (as `draws_array`),
-- `$summary()` — a tidy table with `median`, `mad`, `rhat`, `ess_bulk`, `ess_tail`,
-- `$diagnostic_summary()` — warmup + sampling diagnostics,
-- `$output_files()` — paths to the per-chain CmdStan CSV output files.
+- `$draws()`: extract the posterior draws (as `draws_array`),
+- `$summary()`: a tidy table with `median`, `mad`, `rhat`, `ess_bulk`, `ess_tail`,
+- `$diagnostic_summary()`: warmup + sampling diagnostics,
+- `$output_files()`: paths to the per-chain CmdStan CSV output files.
 
 ```{r}
 #| label: inspect-summary
@@ -502,7 +517,7 @@ print(fit_diagnostics)
 
 - `rhat` close to 1.00 (rule of thumb: `< 1.01`) suggests the chains converged.
 - `ess_bulk` / `ess_tail` above a few hundred indicate sufficient effective posterior sample size for stable estimates.
-- `num_divergent` / `num_max_treedepth` should be 0 — if not, consider more warmup, a better prior, or reparameterization.
+- `num_divergent` / `num_max_treedepth` should be 0. If not, consider more warmup, a better prior, or reparameterization.
 :::
 
 ---
@@ -566,7 +581,7 @@ bart_fit_ewmvslc_sample_cmdstan <- readRDS("_rds/bart_fit_ewmvslc_sample_cmdstan
 
 ## Conversion to rstan (optional)
 
-Some older ecosystem tools expect an **rstan `stanfit`** object. A `stanfit` can be rebuilt from the CmdStan **CSV output files** of the run — one CSV per chain. This is the reason we kept `output_dir = "_rds"` in @sec-sample:
+Some older ecosystem tools expect an **rstan `stanfit`** object. A `stanfit` can be rebuilt from the CmdStan **CSV output files** of the run, one CSV per chain,. This is the reason we kept `output_dir = "_rds"` in @sec-sample:
 
 ```{r}
 #| label: convert-to-rstan
@@ -585,7 +600,7 @@ print(stanfit)
 ::: {.callout-warning}
 ## Old script pitfall
 
-The original `cmdstanr.R` passed `as_draws_df(samples_posterior)` to `read_stan_csv()`. That does **not** work: `read_stan_csv()` parses CSV files produced by CmdStan, not in-memory draws. Use `fit$output_files()` as above — or, if the CSVs were discarded, refit with `output_dir` set (see @sec-sample).
+The original `cmdstanr.R` passed `as_draws_df(samples_posterior)` to `read_stan_csv()`. That does **not** work: `read_stan_csv()` parses CSV files produced by CmdStan, not in-memory draws. Use `fit$output_files()` as above; or, if the CSVs were discarded, refit with `output_dir` set (see @sec-sample).
 :::
 
 ---
@@ -610,10 +625,10 @@ print(bart_fit_loo)
 ::: {.callout-note}
 ## Reading the LOO output
 
-- `elpd_loo` — estimated log pointwise predictive density (higher is better).
-- `p_loo` — effective number of parameters (penalty for overfitting).
-- `looic` — the LOO information criterion, `-2 * elpd_loo` (lower is better).
-- **Pareto `k`** diagnostics — values below 0.5 are desirable; values above 0.7 flag influential observations that need special care (e.g. `kfold()`).
+- `elpd_loo`: estimated log pointwise predictive density (higher is better).
+- `p_loo`: effective number of parameters (penalty for overfitting).
+- `looic`: the LOO information criterion, `-2 * elpd_loo` (lower is better).
+- **Pareto `k`** diagnostics: values below 0.5 are desirable; values above 0.7 flag influential observations that need special care (e.g. `kfold()`).
 
 Once you have LOO results for more than one model (e.g. EWMV vs. EWMV-SLC), compare them with `loo_compare(list("EWMV-SLC" = fit_a_loo, "EWMV" = fit_b_loo))`.
 :::

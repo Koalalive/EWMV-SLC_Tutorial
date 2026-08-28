@@ -59,3 +59,7 @@ _rds/
 # Quarto caches and default R plot device
 .quarto/
 Rplots.pdf
+
+# Tooling / browser-test artifacts
+.omo/
+.playwright-mcp/
