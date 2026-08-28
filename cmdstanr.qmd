@@ -67,19 +67,19 @@ The pipeline covered here is:
 
 ## Recommended: use the Docker environment (zero setup)
 
-The image `koalalive/cmdstanr4cogneuro:1.0.1` bundles R, CmdStan, `cmdstanr`,
+The image `koalalive/stan4cogneuro:1.0.2` bundles R, CmdStan, `cmdstanr`,
 `posterior`, `bayesplot`, `loo`, `tidyverse`, and `rstan`. With Docker you do
 not need to install anything locally:
 
 ```bash
 # Pull the environment
-docker pull koalalive/cmdstanr4cogneuro:1.0.1
+docker pull koalalive/stan4cogneuro:1.0.2
 
 # Run the whole pipeline inside the container
 # (Windows PowerShell: replace $(pwd) with %CD%)
 # NOTE: R is not on the default PATH, use the full path below.
 docker run --rm -v "$(pwd)":/root/stan -w /root/stan \
-  koalalive/cmdstanr4cogneuro:1.0.1 \
+  koalalive/stan4cogneuro:1.0.2 \
   /root/miniconda3/envs/stan/bin/Rscript _scripts/cmdstanr.R
 ```
 
@@ -87,14 +87,13 @@ docker run --rm -v "$(pwd)":/root/stan -w /root/stan \
 ## Working interactively (RStudio Server)
 
 For an interactive IDE, mount the project to `/root/stan`, publish port 8787,
-and open `http://localhost:8787` in your browser (user:
-`rstudio-server`, password set by the `RS_PASSWORD` env var):
+and open `http://localhost:8787` in your browser (default user:
+`rstudio-server`, password `rstudio`). RStudio Server starts automatically:
 
 ```bash
-docker run -d --name ewmv-rstudio -p 8787:8787 \
-  -e RS_PASSWORD=rstudio -v "$(pwd)":/root/stan \
-  koalalive/cmdstanr4cogneuro:1.0.1 \
-  bash /root/stan/_scripts/start_rstudio.sh
+docker run -it --name ewmv-rstudio -p 8787:8787 \
+  -v "$(pwd)":/root/stan \
+  koalalive/stan4cogneuro:1.0.2
 ```
 :::
 

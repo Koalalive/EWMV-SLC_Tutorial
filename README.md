@@ -45,14 +45,14 @@ You only need **Docker**. No local R, no C++ toolchain, no CmdStan setup.
 :::
 
 ```bash
-# 1. Pull the environment (image will be published soon)
-docker pull koalalive/cmdstanr4cogneuro:1.0.1
+# 1. Pull the environment
+docker pull koalalive/stan4cogneuro:1.0.2
 
 # 2. Run the full fitting pipeline inside the container
 #    (Windows PowerShell: replace $(pwd) with %CD%)
 #    NOTE: R is not on the default PATH, always use the full path below.
 docker run --rm -v "$(pwd)":/root/stan -w /root/stan \
-  koalalive/cmdstanr4cogneuro:1.0.1 \
+  koalalive/stan4cogneuro:1.0.2 \
   /root/miniconda3/envs/stan/bin/Rscript _scripts/cmdstanr.R
 
 # 3. (Optional) open the project in RStudio Server (browser IDE): see below
@@ -92,17 +92,15 @@ Want to run the code interactively in an IDE? Mount the folder you need into
 
 ```bash
 # Windows PowerShell: replace $(pwd) with %CD%
-docker run -d --name ewmv-rstudio \
-  -p 8787:8787 \
-  -e RS_PASSWORD=rstudio \                # change to your own password
+# Mount the folder you need to /root/stan; RStudio Server starts automatically.
+docker run -it --name ewmv-rstudio -p 8787:8787 \
   -v "$(pwd)":/root/stan \                # mount the project / sample-data folder
-  koalalive/cmdstanr4cogneuro:1.0.1 \
-  bash /root/stan/_scripts/start_rstudio.sh
+  koalalive/stan4cogneuro:1.0.2
 ```
 
-- **Open** `http://localhost:8787` in your browser and log in with username
-  **`rstudio-server`** and the password set via `RS_PASSWORD` above
-  (default `rstudio`).
+- **Open** `http://localhost:8787` in your browser and log in with the
+  RStudio account of the image (default: user `rstudio-server`, password
+  `rstudio` — customize if your image uses different credentials).
 - **Mount your own data**: add another volume, e.g.
   `-v "D:/my_data":/root/stan/data`, and your CSV files will appear inside
   the project folder.
@@ -146,7 +144,7 @@ describing real loss evaluation. See the paper for details on the GD findings.
 
 **Recommended: one Docker image for everything.**
 
-The image [`koalalive/cmdstanr4cogneuro:1.0.1`](https://hub.docker.com/r/koalalive/cmdstanr4cogneuro)
+The image [`koalalive/stan4cogneuro:1.0.2`](https://hub.docker.com/r/koalalive/stan4cogneuro)
 (published in the near future) bundles R with CmdStan, `cmdstanr`, `posterior`,
 `bayesplot`, `loo`, `tidyverse`, and `rstan`, so nothing has to be installed
 locally.

@@ -11,7 +11,7 @@
 # ============================================================================
 
 # ============================================================================
-# Toolchain setup for the koalalive/cmdstanr4cogneuro Docker image
+# Toolchain setup for the koalalive/stan4cogneuro Docker image
 # ----------------------------------------------------------------------------
 # This image ships BOTH a conda toolchain (GCC 14) and the system GCC 11.
 # Compiling with the system compiler while linking against the conda
