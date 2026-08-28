@@ -38,7 +38,7 @@ fitting efficiency compared with the classical `rstan` implementation.
 
 ---
 
-## TL;DR — run it in 3 steps
+## Run it in 3 steps
 
 ::: {.callout-note}
 You only need **Docker**. No local R, no C++ toolchain, no CmdStan setup.
@@ -49,7 +49,7 @@ You only need **Docker**. No local R, no C++ toolchain, no CmdStan setup.
 docker pull koalalive/stan4cogneuro:1.0.2
 
 # 2. Run the full fitting pipeline inside the container
-#    (Windows PowerShell: replace $(pwd) with %CD%)
+#    (PowerShell: ${PWD}, CMD: %CD%, Bash/Zsh: $(pwd))
 #    NOTE: R is not on the default PATH, always use the full path below.
 docker run --rm -v "$(pwd)":/root/stan -w /root/stan \
   koalalive/stan4cogneuro:1.0.2 \
@@ -87,10 +87,8 @@ draws, 3 threads per chain) takes about 2.5 minutes. Results are written to
 ## Human-friendly: RStudio Server (browser IDE, port 8787)
 
 Want to run the code interactively in an IDE? Mount the folder you need into
-**`/root/stan`** inside the container, publish **port 8787**, and open
-**`http://localhost:8787`** in your browser.
-
-Mount the folder you need to `/root/stan`; RStudio Server starts automatically.
+**`/root/stan`** inside the container — RStudio Server starts automatically —
+and open **`http://localhost:8787`** in your browser.
 
 **Bash (macOS / Linux):**
 
@@ -169,7 +167,7 @@ describing real loss evaluation. See the paper for details on the GD findings.
 **Recommended: one Docker image for everything.**
 
 The image [`koalalive/stan4cogneuro:1.0.2`](https://hub.docker.com/r/koalalive/stan4cogneuro)
-(published in the near future) bundles R with CmdStan, `cmdstanr`, `posterior`,
+(available on Docker Hub) bundles R with CmdStan, `cmdstanr`, `posterior`,
 `bayesplot`, `loo`, `tidyverse`, and `rstan`, so nothing has to be installed
 locally.
 

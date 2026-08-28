@@ -23,7 +23,7 @@ and the README; the quick-start commands below are **verified working**.
 R is **NOT on `$PATH`** in the image — always use the full interpreter path:
 
 ```bash
-# Windows PowerShell: replace $(pwd) with %CD%
+# (PowerShell: ${PWD}, CMD: %CD%, Bash/Zsh: $(pwd))
 docker run --rm -v "$(pwd)":/root/stan -w /root/stan \
   koalalive/stan4cogneuro:1.0.2 \
   /root/miniconda3/envs/stan/bin/Rscript _scripts/cmdstanr.R

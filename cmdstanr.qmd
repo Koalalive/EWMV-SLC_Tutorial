@@ -76,7 +76,7 @@ not need to install anything locally:
 docker pull koalalive/stan4cogneuro:1.0.2
 
 # Run the whole pipeline inside the container
-# (Windows PowerShell: replace $(pwd) with %CD%)
+# (PowerShell: ${PWD}, CMD: %CD%, Bash/Zsh: $(pwd))
 # NOTE: R is not on the default PATH, use the full path below.
 docker run --rm -v "$(pwd)":/root/stan -w /root/stan \
   koalalive/stan4cogneuro:1.0.2 \
