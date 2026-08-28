@@ -84,53 +84,30 @@ draws, 3 threads per chain) takes about 2.5 minutes. Results are written to
 
 ---
 
-## 中文快速上手 (Chinese Quick Start)
+## Human-friendly: RStudio Server (browser IDE, port 8787)
 
-这个项目是 **Wei et al. (2026, *Journal of Behavioral Addictions*)** 一文中
-**EWMV-SLC 模型**（带有"损失敏感性递减"机制的层级贝叶斯 BART 决策模型）的
-学术复现教程。代码改编自 **Park et al. (2021)** 的 EWMV 模型和 **hBayesDM**
-项目，并在此基础上引入 **cmdstanr** 框架，通过 `reduce_sum` + `threads_per_chain`
-实现**链内并行**，充分利用多核 CPU，显著提高运算速度和拟合效率。
-
-**只装 Docker 就能跑（不需要装 R）：**
+Want to run the code interactively in an IDE? Mount the folder you need into
+**`/root/stan`** inside the container, publish **port 8787**, and open
+**`http://localhost:8787`** in your browser.
 
 ```bash
-docker pull koalalive/cmdstanr4cogneuro:1.0.1
-
-# Windows PowerShell 用 %CD% 替代 $(pwd)
-# 注意：镜像里 R 不在默认 PATH，必须用完整路径
-docker run --rm -v "%CD%":/root/stan -w /root/stan \
-  koalalive/cmdstanr4cogneuro:1.0.1 \
-  /root/miniconda3/envs/stan/bin/Rscript _scripts/cmdstanr.R
-```
-
-时间预期（16 核实测）：首次编译约 1–2 分钟；4 链 × 1000 抽样、每链 3 线程，
-约 2.5 分钟。
-
----
-
-## 人用：RStudio Server（浏览器 IDE，端口 8787）
-
-想用 IDE 手动跑代码（"古法编程"）？把需要的文件夹挂载到容器内的
-**`/root/stan`**，映射 **8787 端口**，然后浏览器打开 **`http://localhost:8787`**
-即可。
-
-```bash
-# Windows PowerShell 用 %CD% 替代 $(pwd)
+# Windows PowerShell: replace $(pwd) with %CD%
 docker run -d --name ewmv-rstudio \
   -p 8787:8787 \
-  -e RS_PASSWORD=rstudio \                # 改成你自己的密码
-  -v "$(pwd)":/root/stan \                # 挂载项目/示例文件夹
+  -e RS_PASSWORD=rstudio \                # change to your own password
+  -v "$(pwd)":/root/stan \                # mount the project / sample-data folder
   koalalive/cmdstanr4cogneuro:1.0.1 \
   bash /root/stan/_scripts/start_rstudio.sh
 ```
 
-- **浏览器打开** `http://localhost:8787`，登录用户名 **`rstudio-server`**，
-  密码为上面 `RS_PASSWORD` 设置的值（默认 `rstudio`）。
-- **挂载自己的数据**：再加一个卷即可，例如
-  `-v "D:/my_data":/root/stan/data`，你的 CSV 就会出现在项目文件夹里。
-- 项目文件夹整体挂载在容器内 `/root/stan`，进入 RStudio 后打开
-  `Toys4EWMV-SLC.Rproj` 项目，工作目录即为你挂载的文件夹。
+- **Open** `http://localhost:8787` in your browser and log in with username
+  **`rstudio-server`** and the password set via `RS_PASSWORD` above
+  (default `rstudio`).
+- **Mount your own data**: add another volume, e.g.
+  `-v "D:/my_data":/root/stan/data`, and your CSV files will appear inside
+  the project folder.
+- The whole project folder is mounted at `/root/stan`; in RStudio, open the
+  `Toys4EWMV-SLC.Rproj` project — your mounted folder is the working directory.
 
 ---
 
