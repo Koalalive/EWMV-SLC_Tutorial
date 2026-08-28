@@ -88,12 +88,26 @@ docker run --rm -v "$(pwd)":/root/stan -w /root/stan \
 
 For an interactive IDE, mount the project to `/root/stan`, publish port 8787,
 and open `http://localhost:8787` in your browser (default user:
-`rstudio-server`, password `rstudio`). RStudio Server starts automatically:
+`rstudio-server`, password `rstudio`). RStudio Server starts automatically.
+Pick your shell:
 
 ```bash
+# Bash (macOS / Linux)
 docker run -it --name ewmv-rstudio -p 8787:8787 \
   -v "$(pwd)":/root/stan \
   koalalive/stan4cogneuro:1.0.2
+```
+
+```powershell
+# Windows PowerShell
+docker run -it --name ewmv-rstudio -p 8787:8787 `
+  -v "${PWD}:/root/stan" `
+  koalalive/stan4cogneuro:1.0.2
+```
+
+```bat
+:: Windows CMD
+docker run -it --name ewmv-rstudio -p 8787:8787 -v "%CD%":/root/stan koalalive/stan4cogneuro:1.0.2
 ```
 :::
 

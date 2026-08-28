@@ -90,12 +90,28 @@ Want to run the code interactively in an IDE? Mount the folder you need into
 **`/root/stan`** inside the container, publish **port 8787**, and open
 **`http://localhost:8787`** in your browser.
 
+Mount the folder you need to `/root/stan`; RStudio Server starts automatically.
+
+**Bash (macOS / Linux):**
+
 ```bash
-# Windows PowerShell: replace $(pwd) with %CD%
-# Mount the folder you need to /root/stan; RStudio Server starts automatically.
 docker run -it --name ewmv-rstudio -p 8787:8787 \
-  -v "$(pwd)":/root/stan \                # mount the project / sample-data folder
+  -v "$(pwd)":/root/stan \
   koalalive/stan4cogneuro:1.0.2
+```
+
+**Windows PowerShell:**
+
+```powershell
+docker run -it --name ewmv-rstudio -p 8787:8787 `
+  -v "${PWD}:/root/stan" `
+  koalalive/stan4cogneuro:1.0.2
+```
+
+**Windows CMD:**
+
+```bat
+docker run -it --name ewmv-rstudio -p 8787:8787 -v "%CD%":/root/stan koalalive/stan4cogneuro:1.0.2
 ```
 
 - **Open** `http://localhost:8787` in your browser and log in with the

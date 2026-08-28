@@ -33,14 +33,24 @@ Timing (16 cores, measured): compile ~1–2 min (first run), fit (4 chains ×
 1000 draws, 3 threads/chain) ~2.5 min. Outputs go to `_rds/` (sampler CSVs,
 `bart_fit_ewmvslc_sample_cmdstan.rds`, `trace_mu_zeta.png`).
 
-For an interactive IDE (RStudio Server starts automatically):
+For an interactive IDE (RStudio Server starts automatically). Pick your shell:
 
 ```bash
+# Bash (macOS / Linux)
 docker run -it --name ewmv-rstudio -p 8787:8787 \
   -v "$(pwd)":/root/stan \
   koalalive/stan4cogneuro:1.0.2
-# then open http://localhost:8787 (default user: rstudio-server / rstudio)
+
+# Windows PowerShell
+docker run -it --name ewmv-rstudio -p 8787:8787 `
+  -v "${PWD}:/root/stan" `
+  koalalive/stan4cogneuro:1.0.2
+
+# Windows CMD
+docker run -it --name ewmv-rstudio -p 8787:8787 -v "%CD%":/root/stan koalalive/stan4cogneuro:1.0.2
 ```
+
+Then open `http://localhost:8787` (default user: `rstudio-server` / `rstudio`).
 
 ## Critical environment facts (do not "fix" them)
 
