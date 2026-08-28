@@ -53,6 +53,23 @@ type a command and press **Enter** to run it. Not sure how to open one?
 | `cls` | Clear the screen |
 | `%CD%` | The current folder path (what the Docker commands use) |
 
+### Which Windows shell should I use?
+
+Windows offers several terminal programs. They *look* the same but have
+different syntax — the most important difference here is **how they write the
+current folder path** in the Docker commands:
+
+| Shell | How to open | Path syntax | Notes |
+|-------|-------------|-------------|-------|
+| CMD (Command Prompt) | `Win + R` → `cmd` | `%CD%` | Classic; `dir` to list files; line continuation with `^` |
+| PowerShell | Start menu → search "PowerShell" | `${PWD}` | Default modern shell; `dir` works too; line continuation with `` ` `` |
+| Git Bash | Start menu → search "Git Bash" (installed with Git) | `$(pwd)` | Simulates a Linux environment (`ls`, `cd`); behaves like macOS/Linux |
+| Windows Terminal (optional) | Microsoft Store app | any of the above | A modern tabbed window that can run CMD/PowerShell/Git Bash/WSL |
+
+**Rule of thumb:** if you followed the Git option above, use **Git Bash** —
+then every command in this tutorial works verbatim (same as macOS/Linux).
+If you use CMD or PowerShell, swap `$(pwd)` for `%CD%` or `${PWD}` accordingly.
+
 ### macOS / Linux
 
 1. **macOS**: press **`Cmd + Space`**, type "Terminal", press Enter (or Finder

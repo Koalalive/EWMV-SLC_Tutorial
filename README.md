@@ -91,13 +91,25 @@ docker --version
 - **`'docker' is not recognized` / `command not found`**: Docker Desktop is not
   installed or not started. Install it (links above), restart your terminal,
   and make sure Docker Desktop is actually running.
-- **Windows asks for WSL2**: Docker Desktop installs/updates it automatically;
-  if you need it manually: <https://learn.microsoft.com/en-us/windows/wsl/install>
+- **`cannot connect to the Docker daemon` / `error during connect`**: Docker
+  Desktop is installed but not running — start it from the Start menu / Launchpad.
 - **`port is already allocated`**: something else is using port 8787. Find it
   with `docker ps` and stop it, or map a different host port instead:
   `-p 8788:8787` and open `http://localhost:8788`.
 - **`the container name is already in use`**: remove the old one first —
   `docker rm -f ewmv-rstudio`.
+- **`invalid reference format`** (PowerShell): do not use `$(pwd)` in
+  PowerShell — it expands to something Docker cannot parse. Use `"${PWD}:/root/stan"`
+  instead (or `%CD%` in CMD).
+- **`exec: "-v": executable file not found`**: the `-v ...` option was typed
+  *after* the image name. All options (`-v`, `-p`, `-e`) must come **before**
+  the image name `koalalive/stan4cogneuro:1.0.2`.
+- **`unable to find image ... locally` / pull times out**: network issue when
+  downloading the image (common with Docker Hub behind some networks). Retry,
+  or configure a registry mirror / proxy for Docker Desktop.
+- **`The system cannot find the path specified` / `No such file or directory`**:
+  you are in the wrong folder, or the mounted path is wrong. `cd` to the
+  repository root and re-check with `dir`/`ls`.
 - **Browser shows nothing**: check `docker ps` — the container must be listed
   with status `Up`.
 
