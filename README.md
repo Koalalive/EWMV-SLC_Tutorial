@@ -1,16 +1,8 @@
 # Toys4EWMV-SLC
 
-**An academic step-by-step tutorial for fitting the EWMV-SLC model to
-Balloon Analogue Risk Task (BART) data with `cmdstanr`.**
+**An academic step-by-step tutorial for fitting the EWMV-SLC model to Balloon Analogue Risk Task (BART) data with `cmdstanr`.**
 
-EWMV-SLC is a hierarchical Bayesian cognitive model of risky decision-making
-introduced by **Wei et al. (2026)** in the *Journal of Behavioral Addictions*
-("Diminishing loss sensitivity during risky decision-making among male
-individuals with gambling disorder"). It extends the **Exponential-Weight
-Mean–Variance (EWMV)** model with a *diminishing loss sensitivity* parameter
-(ζ, `zeta`), which captures how loss aversion grows *slower* as loss magnitude
-increases — a key mechanism differentiating individuals with gambling disorder
-(GD) from healthy controls.
+EWMV-SLC is a hierarchical Bayesian cognitive model of risky decision-making introduced by **Wei et al. (2026)** in the *Journal of Behavioral Addictions* ("Diminishing loss sensitivity during risky decision-making among male individuals with gambling disorder"). It extends the **Exponential-Weight Mean–Variance (EWMV)** model with a *diminishing loss sensitivity* parameter (ζ, `zeta`), which captures how loss aversion grows *slower* as loss magnitude increases — a key mechanism differentiating individuals with gambling disorder (GD) from healthy controls.
 
 This repository contains:
 
@@ -23,18 +15,10 @@ This repository contains:
 
 Our code is adapted from:
 
-- **Park, Yang, Vassileva & Ahn (2021)**, *Development of a novel computational
-  model for the Balloon Analogue Risk Task: The exponential-weight mean–variance
-  model*, *Journal of Mathematical Psychology* (the original EWMV model);
-- the **hBayesDM** project (**Ahn, Haines & Zhang, 2017**,
-  *Computational Psychiatry*; <https://github.com/CCS-Lab/hBayesDM/>).
+- **Park, Yang, Vassileva & Ahn (2021)**, *Development of a novel computational model for the Balloon Analogue Risk Task: The exponential-weight mean–variance model*, *Journal of Mathematical Psychology* (the original EWMV model);
+- the **hBayesDM** project (**Ahn, Haines & Zhang, 2017**, *Computational Psychiatry*; <https://github.com/CCS-Lab/hBayesDM/>).
 
-In addition, we re-implemented the pipeline on top of the **cmdstanr** framework
-and exploited CmdStan's `reduce_sum` with `threads_per_chain`, enabling
-**within-chain (chain-parallel) computation**: chains run in parallel *and*
-each chain splits the per-subject likelihood across multiple CPU threads. This
-makes full use of multi-core CPUs and greatly improves computational speed and
-fitting efficiency compared with the classical `rstan` implementation.
+In addition, we re-implemented the pipeline on top of the **cmdstanr** framework and exploited CmdStan's `reduce_sum` with `threads_per_chain`, enabling **within-chain (chain-parallel) computation**: chains run in parallel *and* each chain splits the per-subject likelihood across multiple CPU threads. This makes full use of multi-core CPUs and greatly improves computational speed and fitting efficiency compared with the classical `rstan` implementation.
 
 ---
 
@@ -58,37 +42,23 @@ docker run --rm -v "$(pwd)":/root/stan -w /root/stan \
 # 3. (Optional) open the project in RStudio Server (browser IDE): see below
 ```
 
-**What to expect (measured on a 16-core machine):** model compilation takes
-about 1–2 minutes on the first run; the MCMC fit (4 chains × 1000 posterior
-draws, 3 threads per chain) takes about 2.5 minutes. Results are written to
-`_rds/` (sampler CSV output, a saved `.rds` fit, and `trace_mu_zeta.png`).
+**What to expect (measured on a 16-core machine):** model compilation takes about 1–2 minutes on the first run; the MCMC fit (4 chains × 1000 posterior draws, 3 threads per chain) takes about 2.5 minutes. Results are written to `_rds/` (sampler CSV output, a saved `.rds` fit, and `trace_mu_zeta.png`).
 
 ::: {.callout-tip}
 ## For AI agents
 
-- Always run from the repository **root** (the paths `_scripts/...`, `_data/...`
-  are relative to it).
-- **R is not on `$PATH`** inside the image — use the full interpreter path:
-  `/root/miniconda3/envs/stan/bin/Rscript` (or `/root/miniconda3/envs/stan/bin/R`).
-- The script `_scripts/cmdstanr.R` already forces the image's conda toolchain
-  (GCC 14 + conda libstdc++) so model compilation succeeds without extra
-  environment setup — do not override `LDFLAGS`/`LD_LIBRARY_PATH` yourself.
-- Optional speed-up: cache compiled models across runs with a named volume:
-  add `-v cmdstan_cache:/root/.cmdstanr` (compilation happens only the first
-  time per volume).
-- Known limitation: `rstan::read_stan_csv()` cannot fully parse the CmdStan
-  2.37 CSV header (rstan 2.32.x expects `save_warmup = 0`, CmdStan 2.37 writes
-  `save_warmup = false`). The script detects this and continues with
-  `cmdstanr`/`posterior` results — no action needed.
+- Always run from the repository **root** (the paths `_scripts/...`, `_data/...` are relative to it).
+- **R is not on `$PATH`** inside the image — use the full interpreter path: `/root/miniconda3/envs/stan/bin/Rscript` (or `/root/miniconda3/envs/stan/bin/R`).
+- The script `_scripts/cmdstanr.R` already forces the image's conda toolchain (GCC 14 + conda libstdc++) so model compilation succeeds without extra environment setup — do not override `LDFLAGS`/`LD_LIBRARY_PATH` yourself.
+- Optional speed-up: cache compiled models across runs with a named volume: add `-v cmdstan_cache:/root/.cmdstanr` (compilation happens only the first time per volume).
+- Known limitation: `rstan::read_stan_csv()` cannot fully parse the CmdStan 2.37 CSV header (rstan 2.32.x expects `save_warmup = 0`, CmdStan 2.37 writes `save_warmup = false`). The script detects this and continues with `cmdstanr`/`posterior` results — no action needed.
 :::
 
 ---
 
 ## Human-friendly: RStudio Server (browser IDE, port 8787)
 
-Want to run the code interactively in an IDE? Mount the folder you need into
-**`/root/stan`** inside the container — RStudio Server starts automatically —
-and open **`http://localhost:8787`** in your browser.
+Want to run the code interactively in an IDE? Mount the folder you need into **`/root/stan`** inside the container — RStudio Server starts automatically — and open **`http://localhost:8787`** in your browser.
 
 **Bash (macOS / Linux):**
 
@@ -120,35 +90,19 @@ docker run -it --name ewmv-rstudio -p 8787:8787 `
 docker run -it --name ewmv-rstudio -p 8787:8787 -v "%CD%":/root/stan koalalive/stan4cogneuro:1.0.2
 ```
 
-- **Open** `http://localhost:8787` in your browser and log in with the
-  RStudio account of the image (default: user `rstudio-server`, password
-  `rstudio` — customize if your image uses different credentials).
-- **Mount your own data**: add another volume, e.g.
-  `-v "D:/my_data":/root/stan/data`, and your CSV files will appear inside
-  the project folder.
-- The whole project folder is mounted at `/root/stan`; in RStudio, open the
-  `Toys4EWMV-SLC.Rproj` project — your mounted folder is the working directory.
+- **Open** `http://localhost:8787` in your browser and log in with the RStudio account of the image (default: user `rstudio-server`, password `rstudio` — customize if your image uses different credentials).
+- **Mount your own data**: add another volume, e.g. `-v "D:/my_data":/root/stan/data`, and your CSV files will appear inside the project folder.
+- The mount point inside the container is **`/root/stan`** — open that folder yourself from RStudio's Files pane (or open the `Toys4EWMV-SLC.Rproj` project if present); the mounted folder is your working directory.
 
 ---
 
 ## What is BART? What is EWMV-SLC?
 
-**BART (Balloon Analogue Risk Task)** is a classic behavioral measure of risky
-decision-making: participants inflate a virtual balloon, each pump gains money
-but increases the chance of an explosion (which loses the money on that trial).
-Pumping decisions reveal how people trade off reward vs. risk.
+**BART (Balloon Analogue Risk Task)** is a classic behavioral measure of risky decision-making: participants inflate a virtual balloon, each pump gains money but increases the chance of an explosion (which loses the money on that trial). Pumping decisions reveal how people trade off reward vs. risk.
 
-**Hierarchical Bayesian models** of BART assume each participant has their own
-(a) subjective belief about the explosion probability, (b) loss aversion, and
-(c) decision sensitivity, all drawn from group-level distributions. The model
-outputs group-level parameters (e.g. `mu_zeta`), which can then be compared
-between groups (e.g. GD vs. controls), and subject-level parameters for
-individual differences.
+**Hierarchical Bayesian models** of BART assume each participant has their own (a) subjective belief about the explosion probability, (b) loss aversion, and (c) decision sensitivity, all drawn from group-level distributions. The model outputs group-level parameters (e.g. `mu_zeta`), which can then be compared between groups (e.g. GD vs. controls), and subject-level parameters for individual differences.
 
-**EWMV-SLC** (exponential-weight mean–variance with diminishing loss
-sensitivity) adds to the EWMV model a loss-sensitivity exponent ζ that lets the
-effective loss weight *diminish* as the accumulated loss grows, better
-describing real loss evaluation. See the paper for details on the GD findings.
+**EWMV-SLC** (exponential-weight mean–variance with diminishing loss sensitivity) adds to the EWMV model a loss-sensitivity exponent ζ that lets the effective loss weight *diminish* as the accumulated loss grows, better describing real loss evaluation. See the paper for details on the GD findings.
 
 ## Project structure
 
@@ -166,29 +120,21 @@ describing real loss evaluation. See the paper for details on the GD findings.
 
 **Recommended: one Docker image for everything.**
 
-The image [`koalalive/stan4cogneuro:1.0.2`](https://hub.docker.com/r/koalalive/stan4cogneuro)
-(available on Docker Hub) bundles R with CmdStan, `cmdstanr`, `posterior`,
-`bayesplot`, `loo`, `tidyverse`, and `rstan`, so nothing has to be installed
-locally.
+The image [`koalalive/stan4cogneuro:1.0.2`](https://hub.docker.com/r/koalalive/stan4cogneuro) (available on Docker Hub) bundles R with CmdStan, `cmdstanr`, `posterior`, `bayesplot`, `loo`, `tidyverse`, and `rstan`, so nothing has to be installed locally.
 
 **Alternative: local installation** (for experienced users)
 
-- R ≥ 4.1, a working C++ toolchain (RTools on Windows / Xcode on macOS / g++
-  on Linux) and CmdStan (`cmdstanr::install_cmdstan()`);
+- R ≥ 4.1, a working C++ toolchain (RTools on Windows / Xcode on macOS / g++ on Linux) and CmdStan (`cmdstanr::install_cmdstan()`);
 - R packages: `cmdstanr`, `posterior`, `bayesplot`, `loo`, `tidyverse`, `rstan`.
 
 ## Reproduce the analysis
 
 The single entry point is `_scripts/cmdstanr.R`. It does:
 
-1. **Preprocess** — `bart_fit_preprocess()` reshapes the long-format data into
-   the `N × T` matrices expected by Stan (`data_list`).
-2. **Compile** — `cmdstan_model(cpp_options = list(stan_threads = TRUE))`
-   (with threading enabled, required by `reduce_sum`).
-3. **Sample** — `model$sample()` with `parallel_chains = 4` (chains in parallel)
-   and `threads_per_chain = 3` (threads within each chain).
-4. **Diagnose** — `$summary()`, `$diagnostic_summary()`, and `bayesplot` trace
-   plots of the group-level means (`mu_phi` … `mu_zeta`).
+1. **Preprocess** — `bart_fit_preprocess()` reshapes the long-format data into the `N × T` matrices expected by Stan (`data_list`).
+2. **Compile** — `cmdstan_model(cpp_options = list(stan_threads = TRUE))` (with threading enabled, required by `reduce_sum`).
+3. **Sample** — `model$sample()` with `parallel_chains = 4` (chains in parallel) and `threads_per_chain = 3` (threads within each chain).
+4. **Diagnose** — `$summary()`, `$diagnostic_summary()`, and `bayesplot` trace plots of the group-level means (`mu_phi` … `mu_zeta`).
 5. **Compare** — LOO-CV (`loo`) on the pointwise `log_lik` for model comparison.
 
 ### Why cmdstanr (vs. rstan)?
@@ -217,20 +163,11 @@ The single entry point is `_scripts/cmdstanr.R`. It does:
 
 If you use this repository, please cite the source paper and the adapted works:
 
-**Wei, H., Zhong, G., Liu, J., Wei, Y., Zhang, X., Yang, P., Xu, X., Zhao, M., &
-Du, J. (2026).** Diminishing loss sensitivity during risky decision-making among
-male individuals with gambling disorder. *Journal of Behavioral Addictions*,
-*15*(1), 371–383. <https://doi.org/10.1556/2006.2025.00230>
+**Wei, H., Zhong, G., Liu, J., Wei, Y., Zhang, X., Yang, P., Xu, X., Zhao, M., & Du, J. (2026).** Diminishing loss sensitivity during risky decision-making among male individuals with gambling disorder. *Journal of Behavioral Addictions*, *15*(1), 371–383. <https://doi.org/10.1556/2006.2025.00230>
 
-**Park, H., Yang, J., Vassileva, J., & Ahn, W.-Y. (2021).** Development of a
-novel computational model for the Balloon Analogue Risk Task: The
-exponential-weight mean–variance model. *Journal of Mathematical Psychology*,
-*102*, 102532. <https://doi.org/10.1016/j.jmp.2021.102532>
+**Park, H., Yang, J., Vassileva, J., & Ahn, W.-Y. (2021).** Development of a novel computational model for the Balloon Analogue Risk Task: The exponential-weight mean–variance model. *Journal of Mathematical Psychology*, *102*, 102532. <https://doi.org/10.1016/j.jmp.2021.102532>
 
-**Ahn, W.-Y., Haines, N., & Zhang, L. (2017).** Revealing neurocomputational
-mechanisms of reinforcement learning and decision-making with the hBayesDM
-package. *Computational Psychiatry*, *1*(1), 24–57.
-<https://doi.org/10.1162/cpsy_a_00002>
+**Ahn, W.-Y., Haines, N., & Zhang, L. (2017).** Revealing neurocomputational mechanisms of reinforcement learning and decision-making with the hBayesDM package. *Computational Psychiatry*, *1*(1), 24–57. <https://doi.org/10.1162/cpsy_a_00002>
 
 ```bibtex
 @article{wei2026diminishing,
@@ -280,9 +217,7 @@ Also cite the `cmdstanr` package when using this pipeline:
 
 ## Acknowledgments
 
-We sincerely thank **Gangliang Zhong**, **Yujie Bai**, **Lingjie Wei**, and
-**Aimin Zhao** for their generous provision of computational resources and
-testing support, which made this repository possible.
+We sincerely thank **Gangliang Zhong**, **Yujie Bai**, **Lingjie Wei**, and **Aimin Zhao** for their generous provision of computational resources and testing support, which made this repository possible.
 
 ## License
 

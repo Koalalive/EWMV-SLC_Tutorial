@@ -1,59 +1,24 @@
 ---
-title: "Fitting the EWMV-SLC Model to BART Data with cmdstanr"
-subtitle: "An annotated end-to-end tutorial: data preparation, multithreaded MCMC sampling, convergence diagnostics, and model comparison"
-author: "Toys4EWMV-SLC Project"
-date: today
-format:
-  html:
-    toc: true
-    toc-depth: 3
-    theme: cosmo
-    code-fold: false
-    df-print: paged
-    code-line-numbers: true
-execute:
-  echo: true
-  warning: false
-  message: false
-bibliography: references.bib
+title: "Fitting the EWMV-SLC Model to BART Data with cmdstanr" subtitle: "An annotated end-to-end tutorial: data preparation, multithreaded MCMC sampling, convergence diagnostics, and model comparison" author: "Toys4EWMV-SLC Project" date: today format: html: toc: true toc-depth: 3 theme: cosmo code-fold: false df-print: paged code-line-numbers: true execute: echo: true warning: false message: false bibliography: references.bib
 ---
 
 # Introduction
 
-This document is an expanded, fully annotated version of `_scripts/cmdstanr.R`.
-It walks through the complete workflow of fitting the **EWMV-SLC** model
-(exponential-weight mean–variance with **diminishing loss sensitivity**) to
-**BART** (Balloon Analogue Risk Task) behavioral data using the
-[`cmdstanr`](https://mc-stan.org/cmdstanr/) R interface.
+This document is an expanded, fully annotated version of `_scripts/cmdstanr.R`. It walks through the complete workflow of fitting the **EWMV-SLC** model (exponential-weight mean–variance with **diminishing loss sensitivity**) to **BART** (Balloon Analogue Risk Task) behavioral data using the [`cmdstanr`](https://mc-stan.org/cmdstanr/) R interface.
 
-The EWMV-SLC model implemented here is the one introduced by **Wei et al.
-(2026)** [@wei2026diminishing] in the *Journal of Behavioral Addictions*. The
-model code is adapted from the **EWMV** model of **Park et al. (2021)**
-[@park2021exponential] and the **hBayesDM** project of **Ahn et al. (2017)**
-[@ahn2017hbayesdm]. Our contribution is a `cmdstanr`-based re-implementation
-that adds **within-chain parallelism** (CmdStan `reduce_sum` +
-`threads_per_chain`): chains run in parallel *and* each chain splits the
-per-subject likelihood across multiple CPU threads, making full use of
-multi-core CPUs and greatly improving fitting speed and efficiency.
+The EWMV-SLC model implemented here is the one introduced by **Wei et al. (2026)** [@wei2026diminishing] in the *Journal of Behavioral Addictions*. The model code is adapted from the **EWMV** model of **Park et al. (2021)** [@park2021exponential] and the **hBayesDM** project of **Ahn et al. (2017)** [@ahn2017hbayesdm]. Our contribution is a `cmdstanr`-based re-implementation that adds **within-chain parallelism** (CmdStan `reduce_sum` + `threads_per_chain`): chains run in parallel *and* each chain splits the per-subject likelihood across multiple CPU threads, making full use of multi-core CPUs and greatly improving fitting speed and efficiency.
 
-Compared with the classical `rstan` workflow (see `_scripts/bart_fit.R`),
-`cmdstanr` has several practical advantages:
+Compared with the classical `rstan` workflow (see `_scripts/bart_fit.R`), `cmdstanr` has several practical advantages:
 
-- It calls the **CmdStan C++ executable** directly, so model code is compiled
-  once with a modern C++ toolchain and reused across sessions.
-- It supports **within-chain threading** (`threads_per_chain`) together with
-  Stan's `reduce_sum`, which is exactly what `bart_ewmv-slc.stan` needs to
-  spread the per-subject likelihood across CPU cores.
-- It ships with `posterior` + `bayesplot` integration, and the fitted object
-  can be converted back to an `rstan` `stanfit` when legacy `rstan` tooling is
-  required.
+- It calls the **CmdStan C++ executable** directly, so model code is compiled once with a modern C++ toolchain and reused across sessions.
+- It supports **within-chain threading** (`threads_per_chain`) together with Stan's `reduce_sum`, which is exactly what `bart_ewmv-slc.stan` needs to spread the per-subject likelihood across CPU cores.
+- It ships with `posterior` + `bayesplot` integration, and the fitted object can be converted back to an `rstan` `stanfit` when legacy `rstan` tooling is required.
 
 The pipeline covered here is:
 
 1. Load the data and helper functions.
 2. Set the sampling settings and model constants.
-3. Preprocess the long-format trial data into the matrices the Stan model
-   expects.
+3. Preprocess the long-format trial data into the matrices the Stan model expects.
 4. Compile the Stan model with multithreading support.
 5. Run MCMC sampling with parallel chains *and* per-chain threads.
 6. Inspect the results (summaries, draws, diagnostic summaries).
@@ -67,9 +32,7 @@ The pipeline covered here is:
 
 ## Recommended: use the Docker environment (zero setup)
 
-The image `koalalive/stan4cogneuro:1.0.2` bundles R, CmdStan, `cmdstanr`,
-`posterior`, `bayesplot`, `loo`, `tidyverse`, and `rstan`. With Docker you do
-not need to install anything locally:
+The image `koalalive/stan4cogneuro:1.0.2` bundles R, CmdStan, `cmdstanr`, `posterior`, `bayesplot`, `loo`, `tidyverse`, and `rstan`. With Docker you do not need to install anything locally:
 
 ```bash
 # Pull the environment
@@ -86,10 +49,7 @@ docker run --rm -v "$(pwd)":/root/stan -w /root/stan \
 ::: {.callout-tip}
 ## Working interactively (RStudio Server)
 
-For an interactive IDE, mount the project to `/root/stan`, publish port 8787,
-and open `http://localhost:8787` in your browser (default user:
-`rstudio-server`, password `rstudio`). RStudio Server starts automatically.
-Pick your shell:
+For an interactive IDE, mount the project to `/root/stan`, publish port 8787, and open `http://localhost:8787` in your browser (default user: `rstudio-server`, password `rstudio`). RStudio Server starts automatically. Pick your shell:
 
 ```bash
 # Bash (macOS / Linux)
@@ -121,9 +81,7 @@ docker run -it --name ewmv-rstudio -p 8787:8787 -v "%CD%":/root/stan koalalive/s
 ::: {.callout-tip}
 ## Rendering this tutorial
 
-The image does not ship the Quarto CLI, so `cmdstanr.qmd` is meant to be read
-as annotated source and its R chunks executed inside **RStudio Server** or
-any R session with the packages below.
+The image does not ship the Quarto CLI, so `cmdstanr.qmd` is meant to be read as annotated source and its R chunks executed inside **RStudio Server** or any R session with the packages below.
 :::
 
 ## Alternative: local installation
@@ -140,8 +98,7 @@ install.packages(c("cmdstanr", "posterior", "bayesplot", "loo", "tidyverse", "rs
 Before `cmdstanr` can compile models you must have a working C++ toolchain:
 
 - **macOS**: Xcode command line tools.
-- **Windows**: [RTools](https://cran.r-project.org/bin/windows/Rtools/) matching
-  your R version.
+- **Windows**: [RTools](https://cran.r-project.org/bin/windows/Rtools/) matching your R version.
 - **Linux**: a recent `g++` and `make`.
 
 Then install the CmdStan backend itself:
@@ -167,9 +124,7 @@ cmdstanr::install_cmdstan()
 
 # Step 0: Setup — libraries and helper functions
 
-Load every package used in this workflow and source the project's helper
-functions (`bart_fit_preprocess` reshapes the data; `bart_ewmvslc_diagnosis`
-collects R-hat values and trace plots).
+Load every package used in this workflow and source the project's helper functions (`bart_fit_preprocess` reshapes the data; `bart_ewmvslc_diagnosis` collects R-hat values and trace plots).
 
 ```{r}
 #| label: setup
@@ -191,9 +146,7 @@ source("_scripts/bart_diagnosis.R")
 
 # Step 1: The model in brief
 
-The Stan model (`_scripts/bart_ewmv-slc.stan`) is a hierarchical model with
-six subject-level parameters, written in a *non-centered* (Matt trick)
-parameterization for efficient sampling:
+The Stan model (`_scripts/bart_ewmv-slc.stan`) is a hierarchical model with six subject-level parameters, written in a *non-centered* (Matt trick) parameterization for efficient sampling:
 
 | Parameter | Meaning (as implemented in the model) | Constraint |
 |-----------|----------------------------------------|------------|
@@ -204,40 +157,32 @@ parameterization for efficient sampling:
 | `lambda[j]` | Loss aversion | (0, ∞) |
 | `zeta[j]` | Diminishing loss-sensitivity exponent applied to the loss magnitude | (0, ∞) |
 
-At each pump step the model compares the utility of **pumping again**
-(`u_pump`) with the utility of **stopping** (`u_stop`, fixed at 0):
+At each pump step the model compares the utility of **pumping again** (`u_pump`) with the utility of **stopping** (`u_stop`, fixed at 0):
 
 $$u_{\text{pump}} = (1-p)\,u_{\text{gain}} - \lambda\, p\, u_{\text{loss}}^{\zeta} + \rho\, p\,(1-p)\,\big(u_{\text{gain}} + \lambda\, u_{\text{loss}}^{\zeta}\big)^{2}$$ {#eq-utility}
 
-where $u_{\text{gain}} = 1$, $u_{\text{loss}} = l-1$ grows with the number of
-pumps, and $p$ is the current subjective explosion probability. The decision
-follows a logit-link Bernoulli rule,
+where $u_{\text{gain}} = 1$, $u_{\text{loss}} = l-1$ grows with the number of pumps, and $p$ is the current subjective explosion probability. The decision follows a logit-link Bernoulli rule,
 
 $$\Pr(\text{pump}) = \operatorname{logit}^{-1}\big(\tau \cdot (u_{\text{pump}} - u_{\text{stop}})\big)$$
 
-The subjective explosion probability $p$ is updated after each trial as a
-function of the observed outcome via the learning rate `eta[j]`.
+The subjective explosion probability $p$ is updated after each trial as a function of the observed outcome via the learning rate `eta[j]`.
 
 ::: {.callout-note}
 ## Threading
 
-The likelihood is computed with Stan's `reduce_sum`, so the per-subject
-evaluation can be split across worker threads. For this to work the model
-**must** be compiled with `cpp_options = list(stan_threads = TRUE)`
-(see @sec-compile).
+The likelihood is computed with Stan's `reduce_sum`, so the per-subject evaluation can be split across worker threads. For this to work the model **must** be compiled with `cpp_options = list(stan_threads = TRUE)` (see @sec-compile).
 :::
 
 ---
 
 # Step 2: Global settings
 
-The naming follows the `rstan`-style settings used in `_scripts/cmdstanr.R`,
-then is mapped onto the `cmdstanr` arguments:
+The naming follows the `rstan`-style settings used in `_scripts/cmdstanr.R`, then is mapped onto the `cmdstanr` arguments:
 
 - `n.iter` = total iterations per chain,
 - `n.burnin` = warmup iterations,
 - `n.chain` = number of Markov chains,
-- `Trials` = number of trials per subject (pad `T`), 
+- `Trials` = number of trials per subject (pad `T`),
 - `Nmax` = maximum number of pumps (used to define `P = Nmax + 1`).
 
 ```{r}
@@ -256,9 +201,7 @@ Nmax   <- 12  # maximum number of pumps allowed in a trial
 ::: {.callout-tip}
 ## Mapping to cmdstanr argument names
 
-`cmdstanr` uses `iter_warmup` and `iter_sampling` separately. Here this means:
-`iter_warmup = n.burnin` and `iter_sampling = n.iter - n.burnin` (1000 draws
-of posterior samples per chain in this example).
+`cmdstanr` uses `iter_warmup` and `iter_sampling` separately. Here this means: `iter_warmup = n.burnin` and `iter_sampling = n.iter - n.burnin` (1000 draws of posterior samples per chain in this example).
 :::
 
 ---
@@ -269,8 +212,7 @@ The sample data are in a tidy long format with one row per trial:
 
 - `subjID` — participant identifier,
 - `pumps` — number of pumps on that trial,
-- `explosion` — 1 if the balloon exploded (the last pump on this trial was an
-  explosion), 0 otherwise.
+- `explosion` — 1 if the balloon exploded (the last pump on this trial was an explosion), 0 otherwise.
 
 ```{r}
 #| label: load-data
@@ -293,9 +235,7 @@ bart_sample |>
 
 # Step 4: Preprocess the data for Stan
 
-The Stan model expects **matrices** of shape `N x T`, not a long data frame.
-`bart_fit_preprocess()` converts the long format into the `data_list` that
-`model$sample()` consumes:
+The Stan model expects **matrices** of shape `N x T`, not a long data frame. `bart_fit_preprocess()` converts the long format into the `data_list` that `model$sample()` consumes:
 
 - `N` — number of subjects,
 - `T` — maximum number of trials per subject (padded with 0s if trials differ),
@@ -314,8 +254,7 @@ data_list <- bart_sample %>%
 str(data_list)
 ```
 
-The model then derives the `d[j, k, l]` indicator (1 = the participant pushed
-the pump at step `l` of trial `k`) inside the `transformed data` block:
+The model then derives the `d[j, k, l]` indicator (1 = the participant pushed the pump at step `l` of trial `k`) inside the `transformed data` block:
 
 ```{r}
 #| label: show-transformed-data
@@ -329,9 +268,7 @@ cat("Tsubj =", paste(head(data_list$Tsubj, 5), collapse = ", "), "...\n")
 
 # Step 5: Compile the Stan model {#sec-compile}
 
-Compiling translates the `.stan` file into a C++ binary. Because the model
-uses `reduce_sum`, we must enable `stan_threads = TRUE` so that
-`threads_per_chain` is honored later.
+Compiling translates the `.stan` file into a C++ binary. Because the model uses `reduce_sum`, we must enable `stan_threads = TRUE` so that `threads_per_chain` is honored later.
 
 ```{r}
 #| label: compile-model
@@ -348,21 +285,17 @@ model <- cmdstan_model(model_file,
 ::: {.callout-note}
 ## First run takes a minute (or longer)
 
-The **first** execution of `cmdstan_model()` triggers a C++ compilation that
-typically takes about one minute on a typical desktop. Subsequent runs reuse
-the cached executable and start immediately.
+The **first** execution of `cmdstan_model()` triggers a C++ compilation that typically takes about one minute on a typical desktop. Subsequent runs reuse the cached executable and start immediately.
 :::
 
 ---
 
 # Step 6: Run the MCMC sampler
 
-`CmdStanMCMC$sample()` runs the compiled executable. Two levels of
-parallelism are used:
+`CmdStanMCMC$sample()` runs the compiled executable. Two levels of parallelism are used:
 
 - `parallel_chains = 4` — run the 4 chains *simultaneously* using 4 processes;
-- `threads_per_chain = 3` — each chain further divides the per-subject
-  likelihood across 3 threads (via `reduce_sum`), i.e. 12 cores in total.
+- `threads_per_chain = 3` — each chain further divides the per-subject likelihood across 3 threads (via `reduce_sum`), i.e. 12 cores in total.
 
 ```{r}
 #| label: sample
@@ -395,9 +328,7 @@ print(Sys.time() - start_time)
 ::: {.callout-tip}
 ## Why `output_dir = "_rds"`?
 
-By default `cmdstanr` writes the per-chain sampler output (CSV files) to a
-temporary directory. Setting `output_dir = "_rds"` keeps them in the project
-folder, which is useful for
+By default `cmdstanr` writes the per-chain sampler output (CSV files) to a temporary directory. Setting `output_dir = "_rds"` keeps them in the project folder, which is useful for
 
 - keeping the raw sampler output as evidence / for `read_stan_csv()` later,
 - inspecting the CSV files directly, and
@@ -439,19 +370,15 @@ print(fit_diagnostics)
 ## What to look for
 
 - `rhat` close to 1.00 (rule of thumb: `< 1.01`) suggests the chains converged.
-- `ess_bulk` / `ess_tail` above a few hundred indicate sufficient effective
-  posterior sample size for stable estimates.
-- `num_divergent` / `num_max_treedepth` should be 0 — if not, consider more
-  warmup, a better prior, or reparameterization.
+- `ess_bulk` / `ess_tail` above a few hundred indicate sufficient effective posterior sample size for stable estimates.
+- `num_divergent` / `num_max_treedepth` should be 0 — if not, consider more warmup, a better prior, or reparameterization.
 :::
 
 ---
 
 # Step 8: Convergence diagnostics
 
-The `bayesplot` interface works directly with the `draws` objects from
-`cmdstanr`. Trace plots let you eyeball whether the chains mix well and cover
-the same posterior region.
+The `bayesplot` interface works directly with the `draws` objects from `cmdstanr`. Trace plots let you eyeball whether the chains mix well and cover the same posterior region.
 
 ```{r}
 #| label: trace-group-means
@@ -508,9 +435,7 @@ bart_fit_ewmvslc_sample_cmdstan <- readRDS("_rds/bart_fit_ewmvslc_sample_cmdstan
 
 ## Conversion to rstan (optional)
 
-Some older ecosystem tools expect an **rstan `stanfit`** object. A `stanfit`
-can be rebuilt from the CmdStan **CSV output files** of the run — one CSV per
-chain. This is the reason we kept `output_dir = "_rds"` in @sec-sample:
+Some older ecosystem tools expect an **rstan `stanfit`** object. A `stanfit` can be rebuilt from the CmdStan **CSV output files** of the run — one CSV per chain. This is the reason we kept `output_dir = "_rds"` in @sec-sample:
 
 ```{r}
 #| label: convert-to-rstan
@@ -529,18 +454,14 @@ print(stanfit)
 ::: {.callout-warning}
 ## Old script pitfall
 
-The original `cmdstanr.R` passed `as_draws_df(samples_posterior)` to
-`read_stan_csv()`. That does **not** work: `read_stan_csv()` parses CSV files
-produced by CmdStan, not in-memory draws. Use `fit$output_files()` as above —
-or, if the CSVs were discarded, refit with `output_dir` set (see @sec-sample).
+The original `cmdstanr.R` passed `as_draws_df(samples_posterior)` to `read_stan_csv()`. That does **not** work: `read_stan_csv()` parses CSV files produced by CmdStan, not in-memory draws. Use `fit$output_files()` as above — or, if the CSVs were discarded, refit with `output_dir` set (see @sec-sample).
 :::
 
 ---
 
 # Step 10: Model comparison with LOO-CV
 
-The pointwise log-likelihood (`log_lik` in the `generated quantities` block)
-is what we need for leave-one-out cross-validation:
+The pointwise log-likelihood (`log_lik` in the `generated quantities` block) is what we need for leave-one-out cross-validation:
 
 ```{r}
 #| label: loo
@@ -561,36 +482,25 @@ print(bart_fit_loo)
 - `elpd_loo` — estimated log pointwise predictive density (higher is better).
 - `p_loo` — effective number of parameters (penalty for overfitting).
 - `looic` — the LOO information criterion, `-2 * elpd_loo` (lower is better).
-- **Pareto `k`** diagnostics — values below 0.5 are desirable; values above
-  0.7 flag influential observations that need special care (e.g. `kfold()`).
+- **Pareto `k`** diagnostics — values below 0.5 are desirable; values above 0.7 flag influential observations that need special care (e.g. `kfold()`).
 
-Once you have LOO results for more than one model (e.g. EWMV vs. EWMV-SLC),
-compare them with `loo_compare(list("EWMV-SLC" = fit_a_loo, "EWMV" = fit_b_loo))`.
+Once you have LOO results for more than one model (e.g. EWMV vs. EWMV-SLC), compare them with `loo_compare(list("EWMV-SLC" = fit_a_loo, "EWMV" = fit_b_loo))`.
 :::
 
 ---
 
 # Where to Go From Here
 
-- **Tune `grainsize`** in `bart_ewmv-slc.stan` (currently 1). A larger value
-  reduces scheduler overhead but can hurt load balancing; a common starting
-  point is `N / (chains * cores)`.
+- **Tune `grainsize`** in `bart_ewmv-slc.stan` (currently 1). A larger value reduces scheduler overhead but can hurt load balancing; a common starting point is `N / (chains * cores)`.
 - **Increase `iter_sampling`** if the summary shows small `ess_bulk`.
-- **Compare against nested models** (e.g. a model without the `rho` term or a
-  version with `zeta = 1`) using `loo_compare()`.
-- **Swap in your own data**: keep the same `subjID`, `pumps`, `explosion`
-  columns and adjust `Trials` / `Nmax` accordingly.
-- **Replicate across simulated or multiple empirical datasets** to study the
-  recovery and stability of the EWMV-SLC parameters.
-- **Apply to clinical data**: the empirical application (gambling disorder vs.
-  controls, group-level hypothesis tests on `mu_zeta` and `mu_lambda`) is
-  described in the source paper [@wei2026diminishing].
+- **Compare against nested models** (e.g. a model without the `rho` term or a version with `zeta = 1`) using `loo_compare()`.
+- **Swap in your own data**: keep the same `subjID`, `pumps`, `explosion` columns and adjust `Trials` / `Nmax` accordingly.
+- **Replicate across simulated or multiple empirical datasets** to study the recovery and stability of the EWMV-SLC parameters.
+- **Apply to clinical data**: the empirical application (gambling disorder vs. controls, group-level hypothesis tests on `mu_zeta` and `mu_lambda`) is described in the source paper [@wei2026diminishing].
 
 ## Acknowledgments
 
-We sincerely thank **Gangliang Zhong**, **Yujie Bai**, **Lingjie Wei**, and
-**Aimin Zhao** for their generous provision of computational resources and
-testing support, which made this repository possible.
+We sincerely thank **Gangliang Zhong**, **Yujie Bai**, **Lingjie Wei**, and **Aimin Zhao** for their generous provision of computational resources and testing support, which made this repository possible.
 
 ## Software references
 
