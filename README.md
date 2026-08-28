@@ -30,6 +30,12 @@ any R package: the image `koalalive/stan4cogneuro:1.0.2` already contains
 everything, and your project folder is attached ("mounted") into the container
 so results land on your computer.
 
+**New to the command line?** Every command in this README is typed in a
+terminal (Windows: search "PowerShell" or press `Win+R` then `cmd`; macOS:
+`Cmd+Space` → "Terminal"; Linux: `Ctrl+Alt+T`). A beginner-friendly walkthrough
+of the basics (opening a terminal, `cd`, `dir`/`ls`, pasting commands) is in
+`cmdstanr.qmd`, section "Command line basics".
+
 **Why use Docker for this tutorial?**
 
 - **Deployment made simple:** the whole environment (R 4.1.3, CmdStan,

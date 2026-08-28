@@ -33,6 +33,52 @@ The pipeline covered here is:
 All commands in this tutorial run from the **repository root** (the folder with
 `_data/`, `_scripts/`, `cmdstanr.qmd`, `README.md`).
 
+## Command line basics (for beginners)
+
+All commands here are typed in a **terminal** — a text-only window where you
+type a command and press **Enter** to run it. Not sure how to open one?
+
+### Windows
+
+1. Press **`Win + R`**, type `cmd`, press Enter — or open **Windows
+   PowerShell** from the Start menu (search "powershell").
+2. You will see a prompt like `C:\Users\yourname>`. Type commands after it and
+   press Enter. **Paste** commands with right-click or `Ctrl + V`.
+
+| Command | What it does |
+|---------|--------------|
+| `dir` | List the files and folders in the current folder |
+| `cd folder` | Enter a folder (e.g. `cd EWMV-SLC_Tutorial`) |
+| `cd ..` | Go up one level |
+| `cls` | Clear the screen |
+| `%CD%` | The current folder path (what the Docker commands use) |
+
+### macOS / Linux
+
+1. **macOS**: press **`Cmd + Space`**, type "Terminal", press Enter (or Finder
+   → Applications → Utilities → Terminal).
+2. **Linux**: press `Ctrl + Alt + T` (most distributions) or open the
+   "Terminal" app. **Paste** commands with `Cmd + V` (macOS) or `Ctrl + V`
+   (Linux); on older macOS versions right-click → Paste instead.
+
+`cd` without a path, `cd ~`, or simply typing `cd` returns you to your home
+folder. macOS/Linux use the same `cd`/`ls` style; Windows uses `dir`/`cd`
+(with `cd /d C:\path` in CMD if you need to switch drives).
+
+| Command | What it does |
+|---------|--------------|
+| `ls` | List the files and folders in the current folder |
+| `cd folder` | Enter a folder (e.g. `cd EWMV-SLC_Tutorial`) |
+| `cd ..` | Go up one level |
+| `pwd` | Print the current folder path |
+| `$(pwd)` | The current folder path (what the Docker commands use) |
+
+### Always work from the repository root
+
+Before running any command, `cd` into the project folder you created below and
+confirm you see `_data`, `_scripts`, `cmdstanr.qmd`, `README.md` with `dir`/`ls`.
+If a command fails, the most likely cause is being in the wrong folder.
+
 ## Option A — git clone (recommended)
 
 Install Git if you do not have it yet:
