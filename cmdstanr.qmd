@@ -28,6 +28,53 @@ The pipeline covered here is:
 
 ---
 
+# Getting started: clone the repository
+
+All commands in this tutorial run from the **repository root** (the folder with
+`_data/`, `_scripts/`, `cmdstanr.qmd`, `README.md`).
+
+## Option A — git clone (recommended)
+
+Install Git if you do not have it yet:
+
+- **Windows**: <https://gitforwindows.org/>
+- **macOS**: `xcode-select --install` or <https://git-scm.com/download/mac>
+- **Linux**: your package manager, e.g. `sudo apt install git`
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Koalalive/EWMV-SLC_Tutorial.git
+
+# 2. Enter the project folder
+cd EWMV-SLC_Tutorial
+
+# 3. Verify you are in the right place (you should see the folders below)
+ls
+# _data  _scripts  cmdstanr.qmd  README.md  AGENTS.md  ...
+```
+
+## Option B — download as ZIP (no Git needed)
+
+Open <https://github.com/Koalalive/EWMV-SLC_Tutorial> in your browser, click
+**Code → Download ZIP**, unzip the archive, and open a terminal inside the
+unzipped folder. **Run every command below from that folder** — it is the
+repository root used throughout this tutorial.
+
+## What you should see
+
+| Path | What it is |
+|------|------------|
+| `_data/bart_sample.csv` | Sample BART data |
+| `_scripts/bart_ewmv-slc.stan` | The EWMV-SLC Stan model |
+| `_scripts/cmdstanr.R` | The main fitting pipeline |
+| `cmdstanr.qmd` | This tutorial (annotated source) |
+| `README.md` | Human-facing documentation |
+
+Next: [Prerequisites](#prerequisites) — get Docker ready (see the Docker
+primer in the README if you are new to Docker).
+
+---
+
 # Prerequisites
 
 ## Recommended: use the Docker environment (zero setup)
