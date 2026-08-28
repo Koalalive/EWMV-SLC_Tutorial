@@ -316,6 +316,38 @@ Also cite the `cmdstanr` package when using this pipeline:
 > Interface to 'CmdStan'* [Computer software]. The Stan Development Team.
 > <https://mc-stan.org/cmdstanr/>
 
+## Methodology references
+
+The tutorial follows standard hierarchical Bayesian modeling practice. The
+methodological background (full BibTeX in [`references.bib`](references.bib)):
+
+- **Gelman, A., Carlin, J. B., Stern, H. S., Dunson, D. B., Vehtari, A., &
+  Rubin, D. B. (2013).** *Bayesian Data Analysis* (3rd ed.). Chapman & Hall/CRC.
+  — The canonical reference for hierarchical (multilevel) models: population
+  distributions, shrinkage, and posterior inference.
+- **Papaspiliopoulos, O., Roberts, G. O., & Sköld, M. (2007).** A general
+  framework for the parametrization of hierarchical models. *Statistical
+  Science*, *22*(1), 59–73. <https://doi.org/10.1214/088342307000000014>
+  — The non-centered ("Matt trick") parameterization used in
+  `bart_ewmv-slc.stan`.
+- **Gelman, A., & Rubin, D. B. (1992).** Inference from iterative simulation
+  using multiple sequences. *Statistical Science*, *7*(4), 457–472.
+  <https://doi.org/10.1214/ss/1177011136> — The original R-hat (Gelman–Rubin)
+  convergence diagnostic.
+- **Vehtari, A., Gelman, A., Simpson, D., Carpenter, B., & Bürkner, P.-C.
+  (2021).** Rank-normalization, folding, and localization: An improved R-hat
+  for effective convergence monitoring of MCMC. *Bayesian Analysis*, *16*(2),
+  667–718. <https://doi.org/10.1214/20-BA1221> — The rank-normalized split
+  R-hat computed by `posterior`/`cmdstanr` in this pipeline.
+- **Vehtari, A., Gelman, A., & Gabry, J. (2017).** Practical Bayesian model
+  evaluation using leave-one-out cross-validation and WAIC. *Statistics and
+  Computing*, *27*(5), 1413–1432.
+  <https://doi.org/10.1007/s11222-016-9696-4> — PSIS-LOO used for model
+  comparison in this pipeline.
+- **McElreath, R. (2020).** *Statistical Rethinking: A Bayesian Course with
+  Examples in R and Stan* (2nd ed.). CRC Press. — Friendly textbook reference
+  for the Bayesian workflow, suitable for beginners.
+
 ## Acknowledgments
 
 We sincerely thank **Gangliang Zhong**, **Yujie Bai**, **Lingjie Wei**, and **Aimin Zhao** for their generous provision of computational resources and testing support, which made this repository possible.

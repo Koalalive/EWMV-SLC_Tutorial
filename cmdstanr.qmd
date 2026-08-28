@@ -292,7 +292,17 @@ source("_scripts/bart_diagnosis.R")
 
 # Step 1: The model in brief
 
-The Stan model (`_scripts/bart_ewmv-slc.stan`) is a hierarchical model with six subject-level parameters, written in a *non-centered* (Matt trick) parameterization for efficient sampling:
+The Stan model (`_scripts/bart_ewmv-slc.stan`) is a **hierarchical Bayesian
+model** [@gelman2013bda3]: each subject's six parameters are drawn from
+group-level (population) distributions, so information is shared across
+subjects while individual differences are preserved. The population means
+(`mu_phi` … `mu_zeta`) are the quantities of interest for group comparisons
+(e.g. gambling disorder vs. controls).
+
+The subject-level parameters are written in a *non-centered* (Matt trick)
+parameterization [@papaspiliopoulos2007general], which greatly improves MCMC
+efficiency by removing the dependence between the group-level mean and the
+subject-level deviations:
 
 | Parameter | Meaning (as implemented in the model) | Constraint |
 |-----------|----------------------------------------|------------|
@@ -526,6 +536,15 @@ print(fit_diagnostics)
 
 The `bayesplot` interface works directly with the `draws` objects from `cmdstanr`. Trace plots let you eyeball whether the chains mix well and cover the same posterior region.
 
+The **R-hat** diagnostic originates from Gelman & Rubin
+[@gelman1992inference], who compared between- and within-chain variance of
+multiple chains. The version implemented here (in `posterior`/`cmdstanr`) is
+the **rank-normalized, split R-hat** of Vehtari et al. [@vehtari2021rank],
+which is far less sensitive to non-normal posterior distributions and is the
+currently recommended convergence diagnostic. Values close to 1.00 (rule of
+thumb: below 1.01) indicate that the chains have converged; larger values
+usually mean more warmup or iterations are needed.
+
 ```{r}
 #| label: rhat-all
 #| fig-cap: "R-hat values for every parameter"
@@ -629,7 +648,11 @@ The original `cmdstanr.R` passed `as_draws_df(samples_posterior)` to `read_stan_
 
 # Step 10: Model comparison with LOO-CV
 
-The pointwise log-likelihood (`log_lik` in the `generated quantities` block) is what we need for leave-one-out cross-validation:
+The pointwise log-likelihood (`log_lik` in the `generated quantities` block)
+is what we need for leave-one-out cross-validation. The LOO-CV estimate of
+the expected log pointwise predictive density, computed with Pareto-smoothed
+importance sampling (PSIS-LOO) [@vehtari2017practical], is implemented in the
+`loo` package:
 
 ```{r}
 #| label: loo

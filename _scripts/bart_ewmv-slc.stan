@@ -90,7 +90,10 @@ parameters {
   vector[6] mu_pr;
   vector<lower=0>[6] sigma;
 
-  // Standard normal deviations for the non-centered (Matt trick) parameterization
+  // Standard normal deviations for the non-centered (Matt trick) parameterization;
+  // non-centering (Papaspiliopoulos et al., 2007) removes the correlation between
+  // the group-level mean and the subject-level deviations and greatly improves
+  // sampling efficiency
   vector[N] phi_pr;
   vector[N] eta_pr;
   vector[N] rho_pr;
@@ -100,7 +103,8 @@ parameters {
 }
 
 transformed parameters {
-  // Subject-level parameters obtained via the non-centered (Matt trick) parameterization
+  // Subject-level parameters obtained via the non-centered (Matt trick)
+  // parameterization (Papaspiliopoulos et al., 2007)
   vector<lower=0, upper=1>[N] phi;
   vector<lower=0, upper=1>[N] eta;
   vector<lower=-0.5, upper=0.5>[N] rho;
@@ -117,7 +121,9 @@ transformed parameters {
 }
 
 model {
-  // Priors
+  // Hierarchical (population-level) priors; see Gelman et al. (2013, BDA3).
+  // Group-level means get a weak standard-normal prior; the between-subject
+  // standard deviations are shrunk toward zero with normal(0, 0.2).
   mu_pr ~ normal(0, 1);
   sigma ~ normal(0, 0.2);
 

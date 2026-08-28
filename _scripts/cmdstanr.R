@@ -94,7 +94,9 @@ print(summary_tbl)
 #### CONVERGENCE DIAGNOSTICS ####
 bart_fit_ewmvslc_sample_draws <- bart_fit_ewmvslc_sample_cmdstan$draws()
 
-# R-hat for every parameter; values close to 1.00 indicate convergence
+# R-hat for every parameter; values close to 1.00 indicate convergence.
+# Classic Gelman-Rubin diagnostic (Gelman & Rubin, 1992); the implementation
+# here is the rank-normalized split R-hat of Vehtari et al. (2021).
 rhat_all <- posterior::rhat(bart_fit_ewmvslc_sample_draws)
 print(rhat_all)
 
@@ -145,6 +147,8 @@ stanfit <- tryCatch(
 if (!is.null(stanfit)) print(stanfit)
 
 #### LOO-CV FOR MODEL COMPARISON ####
+# PSIS-LOO (Pareto-smoothed importance sampling leave-one-out cross-validation;
+# Vehtari et al., 2017) implemented in the loo package.
 bart_fit_ewmvslc_sample_loo <- bart_fit_ewmvslc_sample_cmdstan$draws("log_lik")
 loo_result <- loo(bart_fit_ewmvslc_sample_loo)
 print(loo_result)
