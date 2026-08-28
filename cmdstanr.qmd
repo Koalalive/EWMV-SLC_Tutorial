@@ -527,6 +527,28 @@ print(fit_diagnostics)
 The `bayesplot` interface works directly with the `draws` objects from `cmdstanr`. Trace plots let you eyeball whether the chains mix well and cover the same posterior region.
 
 ```{r}
+#| label: rhat-all
+#| fig-cap: "R-hat values for every parameter"
+
+# R-hat for every parameter; close to 1.00 means the chains converged
+rhat_all <- posterior::rhat(draws_posterior)
+print(rhat_all)
+```
+
+```{r}
+#| label: rhat-check
+
+# Quick check: flag any parameter with R-hat above 1.01
+bad_rhat <- names(rhat_all)[rhat_all > 1.01]
+if (length(bad_rhat) == 0) {
+  cat("Convergence check: all parameters have R-hat <= 1.01.\n")
+} else {
+  cat("Parameters with R-hat > 1.01 (may need more iterations):",
+      paste(bad_rhat, collapse = ", "), "\n")
+}
+```
+
+```{r}
 #| label: trace-group-means
 #| fig-cap: "Trace plots of the group-level mean parameters"
 

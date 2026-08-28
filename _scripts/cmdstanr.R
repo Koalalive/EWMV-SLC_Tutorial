@@ -94,6 +94,19 @@ print(summary_tbl)
 #### CONVERGENCE DIAGNOSTICS ####
 bart_fit_ewmvslc_sample_draws <- bart_fit_ewmvslc_sample_cmdstan$draws()
 
+# R-hat for every parameter; values close to 1.00 indicate convergence
+rhat_all <- posterior::rhat(bart_fit_ewmvslc_sample_draws)
+print(rhat_all)
+
+# Quick convergence check: flag any parameter with R-hat above 1.01
+bad_rhat <- names(rhat_all)[rhat_all > 1.01]
+if (length(bad_rhat) == 0) {
+  cat("Convergence check: all parameters have R-hat <= 1.01.\n")
+} else {
+  cat("Parameters with R-hat > 1.01 (may need more iterations):",
+      paste(bad_rhat, collapse = ", "), "\n")
+}
+
 # Trace plot of the group-level loss-sensitivity exponent mu_zeta
 bart_fit_ewmvslc_sample_draws %>%
   bayesplot::mcmc_trace(regex_pars = "mu_zeta")
