@@ -96,6 +96,23 @@ Before running any command, `cd` into the project folder you created below and
 confirm you see `_data`, `_scripts`, `cmdstanr.qmd`, `README.md` with `dir`/`ls`.
 If a command fails, the most likely cause is being in the wrong folder.
 
+### Common errors (and how to fix them)
+
+| Error message | What it usually means | Fix |
+|---------------|-----------------------|-----|
+| `'docker' is not recognized` / `command not found` | Docker not installed or not started | Install Docker (links above), restart the terminal, start Docker Desktop |
+| `cannot connect to the Docker daemon` | Docker Desktop is not running | Start Docker Desktop from the Start menu / Launchpad |
+| `invalid reference format` | Bad path syntax (usually `$(pwd)` in PowerShell) | Use `"${PWD}:/root/stan"` in PowerShell, `%CD%` in CMD, `$(pwd)` in Bash/Zsh |
+| `exec: "-v": executable file not found` | `-v` was typed after the image name | Put all options (`-v`, `-p`, `-e`) **before** the image name |
+| `port is already allocated` | Port 8787 is in use | `docker ps` → `docker stop <name>`, or use `-p 8788:8787` and open `localhost:8788` |
+| `the container name is already in use` | A container with the same name exists | `docker rm -f ewmv-rstudio` and run again |
+| `unable to find image ... locally` / pull timeout | Network problem downloading the image | Retry; configure a registry mirror or proxy for Docker |
+| `The system cannot find the path specified` / `No such file or directory` | Wrong current folder or wrong mount path | `cd` to the repository root; re-check with `dir`/`ls` |
+| Browser shows a blank page | Container not running | `docker ps` — the container status must be `Up` |
+
+If you still have a problem, copy the full error text into a search engine or
+an AI assistant — and mention you are using `koalalive/stan4cogneuro:1.0.2`.
+
 ## Option A — git clone (recommended)
 
 Install Git if you do not have it yet:
