@@ -41,6 +41,11 @@ docker run -it --name ewmv-rstudio -p 8787:8787 \
   -v "$(pwd)":/root/stan \
   koalalive/stan4cogneuro:1.0.2
 
+# Zsh (macOS / Linux)
+docker run -it --name ewmv-rstudio -p 8787:8787 \
+  -v "$(pwd)":/root/stan \
+  koalalive/stan4cogneuro:1.0.2
+
 # Windows PowerShell
 docker run -it --name ewmv-rstudio -p 8787:8787 `
   -v "${PWD}:/root/stan" `
