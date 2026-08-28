@@ -331,12 +331,12 @@ methodological background (full BibTeX in [`references.bib`](references.bib)):
   — The non-centered ("Matt trick") parameterization used in
   `bart_ewmv-slc.stan`.
 - **Gelman, A., & Rubin, D. B. (1992).** Inference from iterative simulation
-  using multiple sequences. *Statistical Science*, *7*(4), 457–472.
+  using multiple sequences. *Statistical Science*, *7*(4), 457–511.
   <https://doi.org/10.1214/ss/1177011136> — The original R-hat (Gelman–Rubin)
   convergence diagnostic.
 - **Vehtari, A., Gelman, A., Simpson, D., Carpenter, B., & Bürkner, P.-C.
   (2021).** Rank-normalization, folding, and localization: An improved R-hat
-  for effective convergence monitoring of MCMC. *Bayesian Analysis*, *16*(2),
+  for assessing convergence of MCMC. *Bayesian Analysis*, *16*(2),
   667–718. <https://doi.org/10.1214/20-BA1221> — The rank-normalized split
   R-hat computed by `posterior`/`cmdstanr` in this pipeline.
 - **Vehtari, A., Gelman, A., & Gabry, J. (2017).** Practical Bayesian model
