@@ -22,6 +22,81 @@ In addition, we re-implemented the pipeline on top of the **cmdstanr** framework
 
 ---
 
+## New to Docker? A quick primer
+
+**What is Docker?** Docker runs pre-packaged environments ("images") on your
+computer inside isolated containers. You do not need to install R, CmdStan, or
+any R package: the image `koalalive/stan4cogneuro:1.0.2` already contains
+everything, and your project folder is attached ("mounted") into the container
+so results land on your computer.
+
+**Why use Docker for this tutorial?**
+
+- **Deployment made simple:** the whole environment (R 4.1.3, CmdStan,
+  `cmdstanr`, `posterior`, `bayesplot`, `loo`, `tidyverse`) already lives inside
+  one image. One `docker run` command is all you need — no installing
+  compilers, no package version conflicts, no "it works on my machine".
+- **Reproducibility by design:** the image pins exact software versions, so the
+  pipeline behaves identically on any computer, today and years from now. For
+  academic work this is essential: co-authors, reviewers, or a future you can
+  re-run the analysis and obtain the same results.
+- **Easy to share:** the environment travels with the image on Docker Hub
+  (`koalalive/stan4cogneuro:1.0.2`), not with your computer. Anyone with Docker
+  — on Windows, macOS, or Linux — can run the same analysis without touching
+  their local setup.
+
+**Terms you will see below:**
+
+| Term | Meaning |
+|------|---------|
+| image | The ready-made environment (e.g. `koalalive/stan4cogneuro:1.0.2`) |
+| container | One running instance of an image (e.g. your `ewmv-rstudio`) |
+| volume (`-v`) | Attaches a folder from your computer into the container, e.g. `-v "$(pwd)":/root/stan` |
+| port (`-p`) | Maps a container port to your computer, e.g. `-p 8787:8787` |
+
+**Step 0 — Install Docker (once):**
+
+- **Windows** (Docker Desktop, uses the WSL2 backend):
+  <https://docs.docker.com/desktop/setup/install/windows-install/>
+- **macOS** (Docker Desktop): <https://docs.docker.com/desktop/setup/install/mac-install/>
+- **Linux** (Docker Engine): <https://docs.docker.com/engine/install/>
+
+Verify the installation in a terminal:
+
+```bash
+docker --version
+```
+
+**Step 1 — Common commands:**
+
+| Command | What it does |
+|---------|--------------|
+| `docker pull koalalive/stan4cogneuro:1.0.2` | Download the image (needed once) |
+| `docker run ...` | Start a container from the image (use the commands in this README) |
+| `docker ps` | List running containers |
+| `docker ps -a` | List all containers, including stopped ones |
+| `docker logs ewmv-rstudio` | Show the container's output |
+| `docker stop ewmv-rstudio` | Stop a running container |
+| `docker rm ewmv-rstudio` | Remove a stopped container (files in mounted folders stay on your computer) |
+| `docker rm -f ewmv-rstudio` | Stop and remove in one command |
+
+**Troubleshooting:**
+
+- **`'docker' is not recognized` / `command not found`**: Docker Desktop is not
+  installed or not started. Install it (links above), restart your terminal,
+  and make sure Docker Desktop is actually running.
+- **Windows asks for WSL2**: Docker Desktop installs/updates it automatically;
+  if you need it manually: <https://learn.microsoft.com/en-us/windows/wsl/install>
+- **`port is already allocated`**: something else is using port 8787. Find it
+  with `docker ps` and stop it, or map a different host port instead:
+  `-p 8788:8787` and open `http://localhost:8788`.
+- **`the container name is already in use`**: remove the old one first —
+  `docker rm -f ewmv-rstudio`.
+- **Browser shows nothing**: check `docker ps` — the container must be listed
+  with status `Up`.
+
+---
+
 ## Run it in 3 steps
 
 ::: {.callout-note}

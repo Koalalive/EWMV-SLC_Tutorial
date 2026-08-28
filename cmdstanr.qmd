@@ -32,7 +32,11 @@ The pipeline covered here is:
 
 ## Recommended: use the Docker environment (zero setup)
 
-The image `koalalive/stan4cogneuro:1.0.2` bundles R, CmdStan, `cmdstanr`, `posterior`, `bayesplot`, `loo`, `tidyverse`, and `rstan`. With Docker you do not need to install anything locally:
+The image `koalalive/stan4cogneuro:1.0.2` bundles R, CmdStan, `cmdstanr`,
+`posterior`, `bayesplot`, `loo`, `tidyverse`, and `rstan`. With Docker you do
+not need to install anything locally — the same pinned environment runs on any
+computer, which makes the analysis easy to deploy and the results easy to
+reproduce:
 
 ```bash
 # Pull the environment
