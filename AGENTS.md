@@ -20,7 +20,11 @@ docker run --rm -v "$(pwd)":/root/stan -w /root/stan \
   /root/miniconda3/envs/stan/bin/Rscript _scripts/cmdstanr.R
 ```
 
-Timing (16 cores, measured): compile ~1–2 min (first run), fit (4 chains × 1000 draws, 3 threads/chain) ~2.5 min. Outputs go to `_rds/` (sampler CSVs, `bart_fit_ewmvslc_sample_cmdstan.rds`, `trace_mu_zeta.png`).
+Timing (measured on a regular laptop: AMD Ryzen 7 8840HS, 8 cores / 16
+threads, 32 GB RAM; 12 worker threads in the container: 4 chains × 3
+threads/chain): compile ~1–2 min (first run), fit (4 chains × 1000 draws,
+3 threads/chain) ~2.5 min. Outputs go to `_rds/` (sampler CSVs,
+`bart_fit_ewmvslc_sample_cmdstan.rds`, `trace_mu_zeta.png`).
 
 For an interactive IDE (RStudio Server starts automatically). Pick your shell:
 

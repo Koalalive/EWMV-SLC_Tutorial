@@ -67,8 +67,8 @@ model <- cmdstan_model(model_file,
 
 #### RUN MCMC SAMPLING ####
 # parallel_chains = 4 (chains in parallel) + threads_per_chain = 3
-# (within-chain threading). On a 16-core machine the fit may take a few
-# minutes. output_dir keeps the raw CmdStan CSV output on disk (_rds/).
+# (within-chain threading). On a regular laptop (8 cores / 16 threads) the
+# fit takes about 2.5 minutes; scale expectations with available cores. output_dir keeps the raw CmdStan CSV output on disk (_rds/).
 threads_per_chain <- 3
 
 start_time <- Sys.time()

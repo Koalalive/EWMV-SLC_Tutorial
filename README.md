@@ -2,7 +2,13 @@
 
 **An academic step-by-step tutorial for fitting the EWMV-SLC model to Balloon Analogue Risk Task (BART) data with `cmdstanr`.**
 
-EWMV-SLC is a hierarchical Bayesian cognitive model of risky decision-making introduced by **Wei et al. (2026)** in the *Journal of Behavioral Addictions* ("Diminishing loss sensitivity during risky decision-making among male individuals with gambling disorder"). It extends the **Exponential-Weight Mean–Variance (EWMV)** model with a *diminishing loss sensitivity* parameter (ζ, `zeta`), which captures how loss aversion grows *slower* as loss magnitude increases. This is a key mechanism differentiating individuals with gambling disorder (GD) from healthy controls.
+EWMV-SLC is a hierarchical Bayesian cognitive model of risky decision-making
+introduced by Wei et al. (2026) ("Diminishing loss sensitivity during risky
+decision-making among male individuals with gambling disorder"). It extends
+the **Exponential-Weight Mean–Variance (EWMV)** model with a *diminishing loss
+sensitivity* parameter (ζ, `zeta`), which captures how loss aversion grows
+*slower* as loss magnitude increases. This is a key mechanism differentiating
+individuals with gambling disorder (GD) from healthy controls.
 
 This repository contains:
 
@@ -135,7 +141,22 @@ docker run --rm -v "$(pwd)":/root/stan -w /root/stan \
 # 3. (Optional) open the project in RStudio Server (browser IDE): see below
 ```
 
-**What to expect (measured on a 16-core machine):** model compilation takes about 1–2 minutes on the first run; the MCMC fit (4 chains × 1000 posterior draws, 3 threads per chain) takes about 2.5 minutes. Results are written to `_rds/` (sampler CSV output, a saved `.rds` fit, and `trace_mu_zeta.png`).
+**What to expect (measured on a regular laptop; see notes below):** model
+compilation takes about 1–2 minutes on the first run; the MCMC fit (4 chains ×
+1000 posterior draws, 3 threads per chain) takes about 2.5 minutes. Results
+are written to `_rds/` (sampler CSV output, a saved `.rds` fit, and
+`trace_mu_zeta.png`).
+
+::: {.callout-note}
+## Test conditions
+
+Timings above were measured on an ordinary laptop: **AMD Ryzen 7 8840HS
+(8 cores / 16 logical threads, 3.3 GHz) with 32 GB RAM**, running the Docker
+environment on Windows. Inside the container the fit used 12 worker threads
+in parallel (4 chains × 3 threads per chain, through `parallel_chains` and
+`threads_per_chain`). On weaker or stronger hardware, scale expectations
+accordingly (roughly proportional to available cores).
+:::
 
 ::: {.callout-tip}
 ## For AI agents

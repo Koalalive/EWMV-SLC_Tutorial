@@ -22,7 +22,8 @@ bibliography: references.bib
 
 This document is an expanded, fully annotated version of `_scripts/cmdstanr.R`. It walks through the complete workflow of fitting the **EWMV-SLC** model (exponential-weight mean–variance with **diminishing loss sensitivity**) to **BART** (Balloon Analogue Risk Task) behavioral data using the [`cmdstanr`](https://mc-stan.org/cmdstanr/) R interface.
 
-The EWMV-SLC model implemented here is the one introduced by **Wei et al. (2026)** [@wei2026diminishing] in the *Journal of Behavioral Addictions*. The model code is adapted from the **EWMV** model of **Park et al. (2021)** [@park2021exponential] and the **hBayesDM** project of **Ahn et al. (2017)** [@ahn2017hbayesdm]. Our contribution is a `cmdstanr`-based re-implementation that adds **within-chain parallelism** (CmdStan `reduce_sum` + `threads_per_chain`): chains run in parallel *and* each chain splits the per-subject likelihood across multiple CPU threads, making full use of multi-core CPUs and greatly improving fitting speed and efficiency.
+The EWMV-SLC model implemented here is the one introduced by **Wei et al.
+(2026)** [@wei2026diminishing]. The model code is adapted from the **EWMV** model of **Park et al. (2021)** [@park2021exponential] and the **hBayesDM** project of **Ahn et al. (2017)** [@ahn2017hbayesdm]. Our contribution is a `cmdstanr`-based re-implementation that adds **within-chain parallelism** (CmdStan `reduce_sum` + `threads_per_chain`): chains run in parallel *and* each chain splits the per-subject likelihood across multiple CPU threads, making full use of multi-core CPUs and greatly improving fitting speed and efficiency.
 
 Compared with the classical `rstan` workflow (see `_scripts/bart_fit.R`), `cmdstanr` has several practical advantages:
 
