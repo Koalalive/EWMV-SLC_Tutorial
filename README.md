@@ -2,13 +2,14 @@
 
 **An academic step-by-step tutorial for fitting the EWMV-SLC model to Balloon Analogue Risk Task (BART) data with `cmdstanr`.**
 
-EWMV-SLC is a hierarchical Bayesian cognitive model of risky decision-making
-introduced by Wei et al. (2026) ("Diminishing loss sensitivity during risky
-decision-making among male individuals with gambling disorder"). It extends
-the **Exponential-Weight Mean–Variance (EWMV)** model with a *diminishing loss
-sensitivity* parameter (ζ, `zeta`), which captures how loss aversion grows
-*slower* as loss magnitude increases. This is a key mechanism differentiating
-individuals with gambling disorder (GD) from healthy controls.
+EWMV-SLC is a hierarchical Bayesian cognitive model of risky decision-making,
+developed to capture *diminishing loss sensitivity* during risky
+decision-making in gambling disorder. It extends the **Exponential-Weight
+Mean–Variance (EWMV)** model with a *diminishing loss sensitivity* parameter
+(ζ, `zeta`), which captures how loss aversion grows *slower* as loss magnitude
+increases. This is a key mechanism differentiating individuals with gambling
+disorder (GD) from healthy controls. See [Citation](#citation) for the
+academic references.
 
 This repository contains:
 
