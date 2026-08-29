@@ -73,6 +73,8 @@ Then open `http://localhost:8787` (default user: `rstudio-server` / `rstudio`).
 ## What NOT to do
 
 - Do not edit `_scripts/bart_ewmv-slc.stan` model logic without explaining the change (it implements the published EWMV-SLC likelihood; utility equation in `cmdstanr.qmd` `{#eq-utility}`).
-- Do not modify the citation entries in `references.bib` or the acknowledgments (Gangliang Zhong, Yujie Bai, Lingjie Wei, Aimin Zhao) in README/`cmdstanr.qmd`.
+- Do not modify the citation entries in `references.bib` or the acknowledgments
+  (Gangliang Zhong, Yujie Bai, Lingjie Wei, Aimin Zhao, Fei Chu, Xiao Zuo) in
+  README/`cmdstanr.qmd`.
 - Do not commit `_rds/` outputs or compile artifacts (covered by `.gitignore`).
 - Do not run heavy fits repeatedly: build on the cached compile (optional `-v cmdstan_cache:/root/.cmdstanr` volume) or shrink `iter_sampling` for quick tests (edit the `#### SET PARAMETERS ####` block in `cmdstanr.R`).

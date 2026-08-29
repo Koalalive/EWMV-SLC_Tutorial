@@ -690,11 +690,12 @@ Once you have LOO results for more than one model (e.g. EWMV vs. EWMV-SLC), comp
 - **Swap in your own data**: keep the same `subjID`, `pumps`, `explosion` columns and adjust `Trials` / `Nmax` accordingly.
 - **Replicate across simulated or multiple empirical datasets** to study the recovery and stability of the EWMV-SLC parameters.
 - **Apply to clinical data**: the empirical application (gambling disorder vs. controls, group-level hypothesis tests on `mu_zeta` and `mu_lambda`) is described in the source paper [@wei2026diminishing].
-
 ## Acknowledgments
 
-We sincerely thank **Gangliang Zhong**, **Yujie Bai**, **Lingjie Wei**, and **Aimin Zhao** for their generous provision of computational resources and testing support, which made this repository possible.
-
+We sincerely thank **Gangliang Zhong**, **Yujie Bai**, **Lingjie Wei**,
+**Aimin Zhao**, **Fei Chu**, and **Xiao Zuo** for their generous provision of
+computational resources and testing support, which made this repository
+possible.
 ## Software references
 
 - `cmdstanr` R interface to CmdStan: <https://mc-stan.org/cmdstanr/>

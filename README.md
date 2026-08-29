@@ -369,11 +369,21 @@ methodological background (full BibTeX in [`references.bib`](references.bib)):
 - **McElreath, R. (2020).** *Statistical Rethinking: A Bayesian Course with
   Examples in R and Stan* (2nd ed.). CRC Press. — Friendly textbook reference
   for the Bayesian workflow, suitable for beginners.
+## Usage notice
+
+This repository and its Docker environment are intended for **local use only**
+(for example, `http://localhost:8787`). Do not deploy them to the public
+internet. If the tools are used with real patient or participant data, the
+user is responsible for protecting that data: any privacy breach caused by
+deploying this tool to a public network is the sole responsibility of the
+user and their institution.
 
 ## Acknowledgments
 
-We sincerely thank **Gangliang Zhong**, **Yujie Bai**, **Lingjie Wei**, and **Aimin Zhao** for their generous provision of computational resources and testing support, which made this repository possible.
-
+We sincerely thank **Gangliang Zhong**, **Yujie Bai**, **Lingjie Wei**,
+**Aimin Zhao**, **Fei Chu**, and **Xiao Zuo** for their generous provision of
+computational resources and testing support, which made this repository
+possible.
 ## License
 
 MIT. See [LICENSE](LICENSE) (© 2025 WEI Hanyu).
